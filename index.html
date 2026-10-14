@@ -69,9 +69,10 @@
         print-color-adjust: exact !important;
       }
 
-      /* Hide builder UI and screen-only controls */
+      /* Hide builder UI, modals, and screen-only controls */
       .no-print, 
       #editor-panel,
+      #email-modal,
       header,
       footer {
         display: none !important;
@@ -133,19 +134,19 @@
 
       <!-- Quick Actions -->
       <div class="flex items-center gap-2 sm:gap-3">
-        <button onclick="loadRentPreset()" title="Load Sample Rent Invoice" class="px-3 py-1.5 text-xs font-medium text-slate-200 bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700 transition flex items-center gap-1.5">
-          <i class="fa-solid fa-building text-indigo-400"></i>
-          <span class="hidden md:inline">Rent Preset</span>
-        </button>
-
         <button onclick="saveCompanyProfile()" title="Save Company Info to LocalStorage" class="px-3 py-1.5 text-xs font-medium text-emerald-300 bg-emerald-950/60 hover:bg-emerald-900/80 border border-emerald-700/60 rounded-lg transition flex items-center gap-1.5">
           <i class="fa-solid fa-floppy-disk"></i>
           <span class="hidden md:inline">Save My Details</span>
         </button>
 
-        <button onclick="clearForm()" title="Clear Form Fields" class="px-3 py-1.5 text-xs font-medium text-rose-300 bg-rose-950/60 hover:bg-rose-900/80 border border-rose-700/60 rounded-lg transition flex items-center gap-1.5">
-          <i class="fa-solid fa-trash-can"></i>
-          <span class="hidden md:inline">Clear</span>
+        <button onclick="clearForm()" title="Reset to Lancaster Default Client" class="px-3 py-1.5 text-xs font-medium text-rose-300 bg-rose-950/60 hover:bg-rose-900/80 border border-rose-700/60 rounded-lg transition flex items-center gap-1.5">
+          <i class="fa-solid fa-rotate-left"></i>
+          <span class="hidden md:inline">Reset Form</span>
+        </button>
+
+        <button onclick="openEmailModal()" class="px-3.5 py-1.5 text-xs sm:text-sm font-semibold text-indigo-100 bg-indigo-900/80 hover:bg-indigo-800 border border-indigo-700 rounded-lg shadow-sm transition flex items-center gap-2">
+          <i class="fa-solid fa-paper-plane text-indigo-300"></i>
+          <span>Send Email</span>
         </button>
 
         <button onclick="window.print()" class="px-4 py-1.5 text-xs sm:text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg shadow transition flex items-center gap-2">
@@ -186,12 +187,12 @@
         <div class="grid grid-cols-1 gap-3">
           <div>
             <label class="block text-xs font-semibold text-slate-600 mb-1">Business Name</label>
-            <input type="text" id="edit-biz-name" oninput="syncFields()" class="w-full text-xs p-2 rounded-lg border border-slate-200 focus:border-indigo-500 focus:outline-none" placeholder="Apex Property Management LLC">
+            <input type="text" id="edit-biz-name" oninput="syncFields()" class="w-full text-xs p-2 rounded-lg border border-slate-200 focus:border-indigo-500 focus:outline-none" placeholder="Your Company Name">
           </div>
           
           <div>
             <label class="block text-xs font-semibold text-slate-600 mb-1">Address & Contact Info</label>
-            <textarea id="edit-biz-address" rows="3" oninput="syncFields()" class="w-full text-xs p-2 rounded-lg border border-slate-200 focus:border-indigo-500 focus:outline-none resize-none" placeholder="100 Main Street, Suite 400&#10;Austin, TX 78701&#10;billing@apexprop.com | (512) 555-0199"></textarea>
+            <textarea id="edit-biz-address" rows="3" oninput="syncFields()" class="w-full text-xs p-2 rounded-lg border border-slate-200 focus:border-indigo-500 focus:outline-none resize-none" placeholder="100 Main Street, Suite 400&#10;Austin, TX 78701&#10;billing@yourcompany.com | (512) 555-0199"></textarea>
           </div>
         </div>
       </div>
@@ -199,18 +200,23 @@
       <!-- Client & Invoice Meta Card -->
       <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
         <h2 class="text-sm font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
-          <i class="fa-solid fa-user-tag text-indigo-500"></i> Client & Metadata
+          <i class="fa-solid fa-user-tag text-indigo-500"></i> Client Details & Metadata
         </h2>
 
         <div class="grid grid-cols-1 gap-3">
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Client / Tenant Name</label>
-            <input type="text" id="edit-client-name" oninput="syncFields()" class="w-full text-xs p-2 rounded-lg border border-slate-200 focus:border-indigo-500 focus:outline-none" placeholder="Oakridge Commercial Leasing">
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Client / Company Name</label>
+            <input type="text" id="edit-client-name" oninput="syncFields()" class="w-full text-xs p-2 rounded-lg border border-slate-200 focus:border-indigo-500 focus:outline-none font-medium" value="Lancaster Property Management Company">
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Client Address / Details</label>
-            <textarea id="edit-client-address" rows="2" oninput="syncFields()" class="w-full text-xs p-2 rounded-lg border border-slate-200 focus:border-indigo-500 focus:outline-none resize-none" placeholder="Unit 4B - Industrial Park&#10;750 Commercial Way, Austin TX"></textarea>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Client Email Address</label>
+            <input type="email" id="edit-client-email" oninput="syncFields()" class="w-full text-xs p-2 rounded-lg border border-slate-200 focus:border-indigo-500 focus:outline-none font-medium text-indigo-700" value="info@lancoproperty.com">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Client Address / Billing Details</label>
+            <textarea id="edit-client-address" rows="2" oninput="syncFields()" class="w-full text-xs p-2 rounded-lg border border-slate-200 focus:border-indigo-500 focus:outline-none resize-none" placeholder="Lancaster Property Management Company&#10;Billing Dept | info@lancoproperty.com"></textarea>
           </div>
 
           <div class="grid grid-cols-2 gap-3">
@@ -260,12 +266,12 @@
 
         <div>
           <label class="block text-xs font-semibold text-slate-600 mb-1">Payment Instructions / Notes</label>
-          <textarea id="edit-notes" rows="2" oninput="syncFields()" class="w-full text-xs p-2 rounded-lg border border-slate-200 focus:border-indigo-500 focus:outline-none resize-none" placeholder="Please send ACH or check to Apex Property Management. Reference INV# in payment memo."></textarea>
+          <textarea id="edit-notes" rows="2" oninput="syncFields()" class="w-full text-xs p-2 rounded-lg border border-slate-200 focus:border-indigo-500 focus:outline-none resize-none" placeholder="Please send ACH or check payment referencing INV# in payment memo."></textarea>
         </div>
 
         <div>
           <label class="block text-xs font-semibold text-slate-600 mb-1">Terms & Conditions</label>
-          <textarea id="edit-terms" rows="2" oninput="syncFields()" class="w-full text-xs p-2 rounded-lg border border-slate-200 focus:border-indigo-500 focus:outline-none resize-none" placeholder="Payment due within 30 days. Late payments subject to 1.5% fee."></textarea>
+          <textarea id="edit-terms" rows="2" oninput="syncFields()" class="w-full text-xs p-2 rounded-lg border border-slate-200 focus:border-indigo-500 focus:outline-none resize-none" placeholder="Payment due within 30 days of invoice date."></textarea>
         </div>
       </div>
 
@@ -284,11 +290,11 @@
               <div id="preview-logo-container" class="hidden mb-3">
                 <img id="preview-logo" src="" alt="Business Logo" class="max-h-16 max-w-xs object-contain">
               </div>
-              <h2 id="view-biz-name" class="text-xl font-bold text-slate-900">Apex Property Management LLC</h2>
+              <h2 id="view-biz-name" class="text-xl font-bold text-slate-900">Your Business Name</h2>
               <div id="view-biz-address" class="text-xs text-slate-600 whitespace-pre-line leading-relaxed">
 100 Main Street, Suite 400
 Austin, TX 78701
-billing@apexprop.com | (512) 555-0199
+billing@yourcompany.com | (512) 555-0199
               </div>
             </div>
 
@@ -321,11 +327,12 @@ billing@apexprop.com | (512) 555-0199
 
           <!-- Client Info Block -->
           <div class="mb-6 p-4 bg-slate-50 rounded-lg border border-slate-100">
-            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Billed To / Tenant</span>
-            <h3 id="view-client-name" class="font-bold text-sm text-slate-900">Oakridge Commercial Leasing</h3>
-            <div id="view-client-address" class="text-xs text-slate-600 whitespace-pre-line leading-relaxed mt-0.5">
-Unit 4B - Industrial Park
-750 Commercial Way, Austin TX
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Billed To</span>
+            <h3 id="view-client-name" class="font-bold text-sm text-slate-900">Lancaster Property Management Company</h3>
+            <div id="view-client-email-display" class="text-xs font-semibold text-indigo-600 mt-0.5">info@lancoproperty.com</div>
+            <div id="view-client-address" class="text-xs text-slate-600 whitespace-pre-line leading-relaxed mt-1">
+Lancaster Property Management Company
+Billing Dept | info@lancoproperty.com
             </div>
           </div>
 
@@ -399,7 +406,7 @@ Unit 4B - Industrial Park
 
           <!-- Printed Footer -->
           <div class="mt-10 pt-4 border-t border-slate-100 text-center text-[10px] text-slate-400 hidden print:block">
-            Thank you for your prompt payment!
+            Thank you for your business!
           </div>
 
         </div>
@@ -408,6 +415,44 @@ Unit 4B - Industrial Park
 
   </main>
 
+  <!-- Email Draft Overlay Modal -->
+  <div id="email-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 no-print">
+    <div class="bg-white rounded-xl shadow-2xl border border-slate-200 max-w-lg w-full p-6 space-y-4">
+      <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+        <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+          <i class="fa-solid fa-envelope text-indigo-600"></i> Send Invoice via Email
+        </h3>
+        <button onclick="closeEmailModal()" class="text-slate-400 hover:text-slate-600 text-lg">&times;</button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block font-semibold text-slate-600 mb-1">To Address:</label>
+          <input type="text" id="modal-email-to" readonly class="w-full p-2 bg-slate-50 border border-slate-200 rounded text-slate-800 font-medium">
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-600 mb-1">Subject Line:</label>
+          <input type="text" id="modal-email-subject" class="w-full p-2 border border-slate-200 rounded text-slate-800 font-medium">
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-600 mb-1">Formatted Message Body:</label>
+          <textarea id="modal-email-body" rows="9" class="w-full p-2 border border-slate-200 rounded text-slate-700 font-mono text-[11px] leading-relaxed resize-none"></textarea>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
+        <button onclick="copyEmailBody()" class="px-3.5 py-2 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition flex items-center gap-1.5">
+          <i class="fa-solid fa-copy"></i> Copy Body Text
+        </button>
+        <button onclick="launchMailClient()" class="px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg shadow transition flex items-center gap-1.5">
+          <i class="fa-solid fa-arrow-up-right-from-square"></i> Open Mail App
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- JavaScript App Engine -->
   <script>
     // State management
@@ -415,8 +460,7 @@ Unit 4B - Industrial Park
 
     // Initial default items
     const defaultRentItems = [
-      { description: "Monthly Commercial Lease - Unit 4B", qty: 1, rate: 2500.00 },
-      { description: "CAM Services & Building Maintenance", qty: 1, rate: 350.00 }
+      { description: "Property Services / Maintenance", qty: 1, rate: 1250.00 }
     ];
 
     window.addEventListener('DOMContentLoaded', () => {
@@ -459,9 +503,9 @@ Unit 4B - Industrial Park
       }).format(num || 0);
     }
 
-    // Sync all Editor Form fields to Live Document Preview
+    // Sync Editor Form fields to Live Document Preview
     function syncFields() {
-      // Company info
+      // Business info
       const bizName = document.getElementById('edit-biz-name').value;
       const bizAddr = document.getElementById('edit-biz-address').value;
       document.getElementById('view-biz-name').textContent = bizName || 'Your Business Name';
@@ -469,9 +513,12 @@ Unit 4B - Industrial Park
 
       // Client info
       const clientName = document.getElementById('edit-client-name').value;
+      const clientEmail = document.getElementById('edit-client-email').value;
       const clientAddr = document.getElementById('edit-client-address').value;
-      document.getElementById('view-client-name').textContent = clientName || 'Client Name';
-      document.getElementById('view-client-address').textContent = clientAddr || 'Client Address / Details';
+
+      document.getElementById('view-client-name').textContent = clientName || 'Lancaster Property Management Company';
+      document.getElementById('view-client-email-display').textContent = clientEmail || 'info@lancoproperty.com';
+      document.getElementById('view-client-address').textContent = clientAddr || `${clientName}\n${clientEmail}`;
 
       // Invoice metadata
       document.getElementById('view-inv-number').textContent = document.getElementById('edit-inv-number').value || 'INV-001';
@@ -546,7 +593,7 @@ Unit 4B - Industrial Park
       }
     }
 
-    // Recalculate entire financial balance
+    // Recalculate balance
     function calculateTotals() {
       let subtotal = 0;
       const rows = document.querySelectorAll('.line-item-row');
@@ -574,7 +621,7 @@ Unit 4B - Industrial Park
       document.getElementById('view-grand-total').textContent = formatMoney(grandTotal);
     }
 
-    // Logo Upload Handling (converts image to Base64)
+    // Logo Upload Handling (Base64)
     function handleLogoUpload(event) {
       const file = event.target.files[0];
       if (file) {
@@ -607,7 +654,7 @@ Unit 4B - Industrial Park
         logo: logoDataUrl
       };
       localStorage.setItem('invoice_studio_profile', JSON.stringify(profile));
-      showToast('Business profile saved to browser storage!');
+      showToast('Business details saved to browser storage!');
     }
 
     function loadCompanyProfile() {
@@ -629,42 +676,92 @@ Unit 4B - Industrial Park
           console.error(e);
         }
       } else {
-        // Set defaults if no saved profile exists
-        document.getElementById('edit-biz-name').value = "Apex Property Management LLC";
-        document.getElementById('edit-biz-address').value = "100 Main Street, Suite 400\nAustin, TX 78701\nbilling@apexprop.com | (512) 555-0199";
-        document.getElementById('edit-notes').value = "Please send ACH or check to Apex Property Management. Reference INV# in payment memo.";
-        document.getElementById('edit-terms').value = "Payment due within 30 days of invoice date. Late payments subject to a 1.5% fee per month.";
+        document.getElementById('edit-biz-name').value = "My Property Services";
+        document.getElementById('edit-biz-address').value = "100 Main Street, Suite 400\nAustin, TX 78701\nbilling@mycompany.com | (512) 555-0199";
+        document.getElementById('edit-notes').value = "Please send ACH or check payment referencing INV# in payment memo.";
+        document.getElementById('edit-terms').value = "Payment due within 30 days of invoice date.";
       }
     }
 
-    // Quick Presets
-    function loadRentPreset() {
-      document.getElementById('edit-client-name').value = "Oakridge Commercial Leasing";
-      document.getElementById('edit-client-address').value = "Unit 4B - Industrial Park\n750 Commercial Way, Austin TX";
-      
-      const tbody = document.getElementById('line-items-body');
-      tbody.innerHTML = '';
-      defaultRentItems.forEach(item => addLineItem(item.description, item.qty, item.rate));
-
-      syncFields();
-      showToast('Loaded Rent Preset!');
-    }
-
+    // Reset Form to Default Lancaster Settings
     function clearForm() {
-      document.getElementById('edit-client-name').value = '';
-      document.getElementById('edit-client-address').value = '';
+      document.getElementById('edit-client-name').value = "Lancaster Property Management Company";
+      document.getElementById('edit-client-email').value = "info@lancoproperty.com";
+      document.getElementById('edit-client-address').value = "Lancaster Property Management Company\nBilling Dept | info@lancoproperty.com";
       document.getElementById('edit-tax-rate').value = 0;
       document.getElementById('edit-discount-val').value = 0;
 
       const tbody = document.getElementById('line-items-body');
       tbody.innerHTML = '';
-      addLineItem('', 1, 0);
+      defaultRentItems.forEach(item => addLineItem(item.description, item.qty, item.rate));
 
       const randomNum = Math.floor(1000 + Math.random() * 9000);
       document.getElementById('edit-inv-number').value = `INV-2026-${randomNum}`;
 
       syncFields();
-      showToast('Form cleared.');
+      showToast('Reset to Lancaster Property Management default!');
+    }
+
+    // Email Modal & Mailto Engine
+    function openEmailModal() {
+      const invNum = document.getElementById('edit-inv-number').value || 'INV-001';
+      const bizName = document.getElementById('edit-biz-name').value || 'Our Company';
+      const clientName = document.getElementById('edit-client-name').value || 'Lancaster Property Management Company';
+      const clientEmail = document.getElementById('edit-client-email').value || 'info@lancoproperty.com';
+      const grandTotal = document.getElementById('view-grand-total').textContent;
+      const dueDate = formatDateDisplay(document.getElementById('edit-due-date').value);
+
+      // Construct plain text breakdown of line items
+      let itemsListText = '';
+      const rows = document.querySelectorAll('.line-item-row');
+      rows.forEach(row => {
+        const desc = row.querySelector('.item-desc').value || 'Service Item';
+        const qty = row.querySelector('.item-qty').value || '1';
+        const rate = row.querySelector('.item-rate').value || '0';
+        const amt = row.querySelector('.item-amount').textContent;
+        itemsListText += ` • ${desc} (Qty: ${qty} @ $${rate}) = ${amt}\n`;
+      });
+
+      const emailSubject = `Invoice ${invNum} from ${bizName}`;
+      const emailBody = `Hello ${clientName},\n\nPlease find the summary for invoice ${invNum} below:\n\n` +
+                        `Invoice #: ${invNum}\n` +
+                        `Due Date: ${dueDate}\n` +
+                        `Total Amount: ${grandTotal}\n\n` +
+                        `LINE ITEMS:\n${itemsListText}\n` +
+                        `Payment Notes:\n${document.getElementById('edit-notes').value}\n\n` +
+                        `Thank you,\n${bizName}`;
+
+      document.getElementById('modal-email-to').value = clientEmail;
+      document.getElementById('modal-email-subject').value = emailSubject;
+      document.getElementById('modal-email-body').value = emailBody;
+
+      document.getElementById('email-modal').classList.remove('hidden');
+    }
+
+    function closeEmailModal() {
+      document.getElementById('email-modal').classList.add('hidden');
+    }
+
+    function copyEmailBody() {
+      const text = document.getElementById('modal-email-body').value;
+      
+      // ExecCommand fallback for iframe clipboard execution
+      const tempArea = document.createElement('textarea');
+      tempArea.value = text;
+      document.body.appendChild(tempArea);
+      tempArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(tempArea);
+
+      showToast('Email content copied to clipboard!');
+    }
+
+    function launchMailClient() {
+      const to = encodeURIComponent(document.getElementById('modal-email-to').value);
+      const subject = encodeURIComponent(document.getElementById('modal-email-subject').value);
+      const body = encodeURIComponent(document.getElementById('modal-email-body').value);
+
+      window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
     }
 
     // UI Toast notification helper
