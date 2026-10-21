@@ -3,577 +3,778 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title id="page-title">930 N Shippen St - 3_LCPM_$180</title>
+  <title>Invoice Studio - Standalone Invoice Generator</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Inter Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#f0f4f8',
+              100: '#d9e2ec',
+              500: '#102a43',
+              600: '#0b1b2b',
+              700: '#08121e',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
   <style>
-    :root {
-      --primary: #102a43;
-      --border-color: #e2e8f0;
-      --bg-light: #f8fafc;
-      --text-dark: #0f172a;
-      --text-muted: #475569;
-      --accent-blue: #0284c7;
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
     }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
     }
-
-    body {
-      background-color: #f1f5f9;
-      color: var(--text-dark);
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
-
-    /* Top Control Toolbar (Hidden when printing) */
-    .toolbar {
-      background: #ffffff;
-      border-bottom: 1px solid var(--border-color);
-      padding: 12px 24px;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
-
-    .toolbar-title {
-      font-weight: 700;
-      font-size: 1.1rem;
-      color: var(--primary);
-    }
-
-    .toolbar-actions {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    .btn {
-      padding: 8px 16px;
-      border-radius: 6px;
-      font-weight: 600;
-      font-size: 0.875rem;
-      cursor: pointer;
-      border: 1px solid transparent;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: all 0.15s ease;
-    }
-
-    .btn-primary {
-      background-color: var(--accent-blue);
-      color: white;
-    }
-
-    .btn-primary:hover {
-      background-color: #0369a1;
-    }
-
-    .btn-outline {
-      background-color: white;
-      border-color: #cbd5e1;
-      color: var(--text-dark);
-    }
-
-    .btn-outline:hover {
-      background-color: #f8fafc;
-    }
-
-    /* Main Container Split View */
-    .app-container {
-      display: flex;
-      flex: 1;
-      gap: 24px;
-      padding: 24px;
-      max-width: 1400px;
-      margin: 0 auto;
-      width: 100%;
-    }
-
-    /* Form Builder Side Drawer */
-    .builder-panel {
-      flex: 1;
-      background: white;
-      border-radius: 8px;
-      padding: 20px;
-      border: 1px solid var(--border-color);
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-      max-height: calc(100vh - 110px);
-      overflow-y: auto;
-    }
-
-    .section-title {
-      font-size: 1rem;
-      font-weight: 700;
-      color: var(--primary);
-      margin-bottom: 12px;
-      padding-bottom: 6px;
-      border-bottom: 2px solid var(--bg-light);
-    }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-      margin-bottom: 20px;
-    }
-
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .form-group.full {
-      grid-column: span 2;
-    }
-
-    label {
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.025em;
-    }
-
-    input, textarea, select {
-      padding: 8px 10px;
-      border: 1px solid #cbd5e1;
-      border-radius: 6px;
-      font-size: 0.875rem;
-      color: var(--text-dark);
-      width: 100%;
-    }
-
-    input:focus, textarea:focus {
-      outline: none;
-      border-color: var(--accent-blue);
-      box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15);
-    }
-
-    /* Preview Canvas Area */
-    .preview-panel {
-      flex: 1.2;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-    }
-
-    /* Standard Invoice Sheet (Matches original sample layout) */
-    .invoice-sheet {
-      background: white;
-      width: 100%;
-      max-width: 800px;
-      min-height: 1000px;
-      padding: 48px;
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
       border-radius: 4px;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      position: relative;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
     }
 
-    /* Invoice Header */
-    .inv-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 30px;
-    }
-
-    .inv-header-title {
-      font-size: 2rem;
-      font-weight: 800;
-      letter-spacing: 0.05em;
-      color: #0f172a;
-      margin-bottom: 12px;
-      text-transform: uppercase;
-    }
-
-    .company-details {
-      font-size: 0.9rem;
-      line-height: 1.45;
-      color: #334155;
-    }
-
-    .company-details div {
-      margin-bottom: 2px;
-    }
-
-    .company-details a {
-      color: var(--accent-blue);
-      text-decoration: none;
-    }
-
-    .logo-container img {
-      max-width: 180px;
-      max-height: 90px;
-      object-fit: contain;
-    }
-
-    /* 3-Column Info Block */
-    .inv-info-grid {
-      display: grid;
-      grid-template-columns: 1.2fr 1fr 1.2fr;
-      gap: 16px;
-      margin-bottom: 32px;
-      font-size: 0.875rem;
-    }
-
-    .info-col-title {
-      font-weight: 700;
-      color: #0f172a;
-      margin-bottom: 6px;
-      font-size: 0.9rem;
-    }
-
-    .info-col-content {
-      color: #334155;
-      line-height: 1.4;
-    }
-
-    .details-row {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 3px;
-    }
-
-    .details-label {
-      color: #475569;
-    }
-
-    .details-val {
-      font-weight: 600;
-      color: #0f172a;
-    }
-
-    /* Invoice Table */
-    .inv-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 24px;
-    }
-
-    .inv-table th {
-      border-bottom: 1px solid #000;
-      text-align: left;
-      padding: 8px 6px;
-      font-size: 0.8rem;
-      font-weight: 700;
-      color: #0f172a;
-      text-transform: uppercase;
-    }
-
-    .inv-table td {
-      padding: 12px 6px;
-      border-bottom: 1px solid #e2e8f0;
-      font-size: 0.875rem;
-      vertical-align: top;
-      color: #334155;
-    }
-
-    .inv-table th.col-num, .inv-table td.col-num { width: 30px; }
-    .inv-table th.col-prod, .inv-table td.col-prod { width: 140px; font-weight: 500; }
-    .inv-table th.col-qty, .inv-table td.col-qty { text-align: center; width: 50px; }
-    .inv-table th.col-rate, .inv-table td.col-rate { text-align: right; width: 90px; }
-    .inv-table th.col-amount, .inv-table td.col-amount { text-align: right; width: 100px; font-weight: 600; }
-
-    /* Total Section */
-    .inv-summary {
-      display: flex;
-      justify-content: flex-end;
-      margin-bottom: 40px;
-    }
-
-    .summary-box {
-      width: 240px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding-top: 8px;
-    }
-
-    .summary-label {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: #0f172a;
-    }
-
-    .summary-value {
-      font-size: 1.25rem;
-      font-weight: 800;
-      color: #0f172a;
-    }
-
-    /* Footer Section (Ways to Pay) */
-    .inv-footer {
-      border-top: 1px solid #cbd5e1;
-      padding-top: 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: auto;
-    }
-
-    .ways-to-pay-title {
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: #0f172a;
-      margin-bottom: 8px;
-    }
-
-    .payment-badges {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      align-items: center;
-    }
-
-    .badge {
-      font-size: 0.65rem;
-      font-weight: 800;
-      padding: 3px 6px;
-      border-radius: 3px;
-      border: 1px solid #cbd5e1;
-      color: #334155;
-      background: #f8fafc;
-      letter-spacing: 0.02em;
-      text-transform: uppercase;
-    }
-
-    .pay-btn-preview {
-      background-color: #0284c7;
-      color: white;
-      padding: 10px 20px;
-      border-radius: 20px;
-      font-weight: 700;
-      font-size: 0.85rem;
-      text-decoration: none;
-      display: inline-block;
-    }
-
-    /* Remove Row Button in Builder */
-    .btn-del {
-      background: #fee2e2;
-      color: #dc2626;
-      border: none;
-      padding: 6px 10px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-
-    .btn-del:hover {
-      background: #fca5a5;
-    }
-
-    /* Dynamic Item Row Container in Builder */
-    .item-builder-row {
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      padding: 10px;
-      border-radius: 6px;
-      margin-bottom: 10px;
-      display: grid;
-      grid-template-columns: 2fr 3fr 1fr 1.5fr 40px;
-      gap: 8px;
-      align-items: center;
-    }
-
-    /* Modal Styling for Email */
-    .modal-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.5);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-    }
-
-    .modal {
-      background: white;
-      border-radius: 8px;
-      width: 90%;
-      max-width: 550px;
-      padding: 24px;
-      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
-    }
-
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-    }
-
-    .modal-title {
-      font-size: 1.1rem;
-      font-weight: 700;
-    }
-
-    /* Print Stylesheet Overrides */
+    /* Print Specific Styles - Crucial for clean PDF output */
     @media print {
+      @page {
+        margin: 0.5in;
+        size: letter portrait;
+      }
+      
       body {
-        background: white;
-        color: black;
+        background: #ffffff !important;
+        color: #000000 !important;
+        font-size: 11pt;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
       }
 
-      .toolbar, .builder-panel, .modal-overlay {
+      /* Hide builder UI, modals, and screen-only controls */
+      .no-print, 
+      #editor-panel,
+      #email-modal,
+      header,
+      footer {
         display: none !important;
       }
 
-      .app-container {
-        padding: 0;
-        margin: 0;
-        max-width: 100%;
+      /* Make Preview occupy full print page */
+      #preview-panel {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+        background: white !important;
       }
 
-      .preview-panel {
-        width: 100%;
+      .preview-card {
+        box-shadow: none !important;
+        border: none !important;
+        padding: 0 !important;
       }
 
-      .invoice-sheet {
-        box-shadow: none;
-        padding: 0;
-        width: 100%;
-        min-height: auto;
+      /* Ensure print inputs convert nicely to plain text visuals */
+      input, textarea, select {
+        border: none !important;
+        background: transparent !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        appearance: none !important;
+        resize: none !important;
+      }
+      
+      ::placeholder {
+        color: transparent !important;
       }
 
-      @page {
-        margin: 0.6in;
-        size: auto;
+      /* Force background color for tables on print */
+      th {
+        background-color: #f8fafc !important;
+        color: #1e293b !important;
       }
     }
   </style>
 </head>
-<body>
+<body class="bg-slate-100 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
 
-  <!-- Top Action Toolbar -->
-  <header class="toolbar">
-    <div class="toolbar-title">Invoice Studio</div>
-    <div class="toolbar-actions">
-      <button class="btn btn-outline" onclick="openEmailModal()">✉️ Email Summary</button>
-      <button class="btn btn-primary" onclick="window.print()">🖨️ Print / Save PDF</button>
+  <!-- Header Bar -->
+  <header class="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-30 no-print shadow-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-white shadow-sm">
+          <i class="fa-solid fa-file-invoice text-lg"></i>
+        </div>
+        <div>
+          <h1 class="font-bold text-base sm:text-lg text-white leading-tight">Invoice Studio</h1>
+          <p class="text-xs text-slate-400 hidden sm:block">Quick QuickBooks replacement for billing & property invoices</p>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <button onclick="saveCompanyProfile()" title="Save Company Info to LocalStorage" class="px-3 py-1.5 text-xs font-medium text-emerald-300 bg-emerald-950/60 hover:bg-emerald-900/80 border border-emerald-700/60 rounded-lg transition flex items-center gap-1.5">
+          <i class="fa-solid fa-floppy-disk"></i>
+          <span class="hidden md:inline">Save My Details</span>
+        </button>
+
+        <button onclick="clearForm()" title="Reset to Lancaster Default Client" class="px-3 py-1.5 text-xs font-medium text-rose-300 bg-rose-950/60 hover:bg-rose-900/80 border border-rose-700/60 rounded-lg transition flex items-center gap-1.5">
+          <i class="fa-solid fa-rotate-left"></i>
+          <span class="hidden md:inline">Reset Form</span>
+        </button>
+
+        <button onclick="openEmailModal()" class="px-3.5 py-1.5 text-xs sm:text-sm font-semibold text-indigo-100 bg-indigo-900/80 hover:bg-indigo-800 border border-indigo-700 rounded-lg shadow-sm transition flex items-center gap-2">
+          <i class="fa-solid fa-paper-plane text-indigo-300"></i>
+          <span>Send Email</span>
+        </button>
+
+        <button onclick="window.print()" class="px-4 py-1.5 text-xs sm:text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg shadow transition flex items-center gap-2">
+          <i class="fa-solid fa-print"></i>
+          <span>Print / Save PDF</span>
+        </button>
+      </div>
     </div>
   </header>
 
-  <div class="app-container">
+  <!-- Main Container: Side-by-side Builder & Live Preview -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
     
-    <!-- Left Panel: Builder Controls -->
-    <aside class="builder-panel">
+    <!-- LEFT PANEL: Editor & Form Controls -->
+    <section id="editor-panel" class="lg:col-span-5 space-y-6 no-print">
       
-      <div class="section-title">PDF Export Settings</div>
-      <div class="form-grid">
-        <div class="form-group full">
-          <label>Download Filename Preset</label>
-          <input type="text" id="cfg-filename" value="930 N Shippen St - 3_LCPM_$180" oninput="updateFilename()">
-        </div>
+      <!-- Toast Alert Box -->
+      <div id="toast-msg" class="hidden p-3 bg-emerald-100 border border-emerald-300 text-emerald-800 text-xs rounded-lg flex items-center justify-between">
+        <span id="toast-text">Action successful!</span>
+        <button onclick="hideToast()" class="text-emerald-800 font-bold ml-2">&times;</button>
       </div>
 
-      <div class="section-title">Header & Company Details</div>
-      <div class="form-grid">
-        <div class="form-group full">
-          <label>Company Name</label>
-          <input type="text" id="comp-name" value="Lancaster County Property Management" oninput="render()">
-        </div>
-        <div class="form-group full">
-          <label>Address</label>
-          <input type="text" id="comp-addr" value="1601 Oregon Pike" oninput="render()">
-        </div>
-        <div class="form-group">
-          <label>City, State ZIP</label>
-          <input type="text" id="comp-csz" value="Lancaster, PA 17601-4447" oninput="render()">
-        </div>
-        <div class="form-group">
-          <label>Email</label>
-          <input type="email" id="comp-email" value="info@lancoproperty.com" oninput="render()">
-        </div>
-        <div class="form-group">
-          <label>Phone</label>
-          <input type="text" id="comp-phone" value="+1 (717) 419-2198" oninput="render()">
-        </div>
-        <div class="form-group">
-          <label>Website</label>
-          <input type="text" id="comp-web" value="https://lancoproperty.com/" oninput="render()">
-        </div>
-      </div>
-
-      <div class="section-title">Invoice Info</div>
-      <div class="form-grid">
-        <div class="form-group">
-          <label>Invoice No.</label>
-          <input type="text" id="inv-no" value="1175" oninput="render()">
-        </div>
-        <div class="form-group">
-          <label>Terms</label>
-          <input type="text" id="inv-terms" value="Net 30" oninput="render()">
-        </div>
-        <div class="form-group">
-          <label>Invoice Date</label>
-          <input type="date" id="inv-date" value="2026-10-19" oninput="render()">
-        </div>
-        <div class="form-group">
-          <label>Due Date</label>
-          <input type="date" id="inv-due" value="2026-11-18" oninput="render()">
-        </div>
-      </div>
-
-      <div class="section-title">Recipients</div>
-      <div class="form-grid">
-        <div class="form-group full">
-          <label>Bill To</label>
-          <input type="text" id="bill-to" value="Lancaster County Property Management" oninput="render()">
-        </div>
-        <div class="form-group full">
-          <label>Ship To</label>
-          <input type="text" id="ship-to" value="Lancaster County Property Management" oninput="render()">
-        </div>
-      </div>
-
-      <div class="section-title" style="display: flex; justify-content: space-between; align-items: center;">
-        <span>Line Items</span>
-        <button class="btn btn-outline" style="padding: 4px 8px; font-size: 0.75rem;" onclick="addItemRow()">+ Add Item</button>
-      </div>
-
-      <div id="items-builder-list">
-        <!-- Item row inputs injected dynamically -->
-      </div>
-
-    </aside>
-
-    <!-- Right Panel: Live Invoice Preview -->
-    <main class="preview-panel">
-      <div class="invoice-sheet" id="invoice-render">
+      <!-- Business Details Card -->
+      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
+        <h2 class="text-sm font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
+          <i class="fa-solid fa-store text-indigo-500"></i> Your Business Info
+        </h2>
         
+        <!-- Logo Upload -->
         <div>
-          <!-- Header -->
-          <div class="inv-top">
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Company Logo</label>
+          <div class="flex items-center gap-3">
+            <input type="file" id="logo-input" accept="image/*" onchange="handleLogoUpload(event)" class="text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+            <button onclick="removeLogo()" id="remove-logo-btn" class="hidden text-xs text-rose-600 hover:underline font-medium">Remove Logo</button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Business Name</label>
+            <input type="text" id="edit-biz-name" oninput="syncFields()" class="w-full text-xs p-2 rounded-lg border border-slate-200 focus:border-indigo-500 focus:outline-none" placeholder="Your Company Name">
+          </div>
+          
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Address & Contact Info</label>
+            <textarea id="edit-biz-address" rows="3" oninput="syncFields()" class="w-full text-xs p-2 rounded-lg border border-slate-200 focus:border-indigo-500 focus:outline-none resize-none" placeholder="100 Main Street, Suite 400&#10;Austin, TX 78701&#10;billing@yourcompany.com | (512) 555-0199"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Client & Invoice Meta Card -->
+      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
+        <h2 class="text-sm font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
+          <i class="fa-solid fa-user-tag text-indigo-500"></i> Client Details & Metadata
+        </h2>
+
+        <div class="grid grid-cols-1 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Client / Company Name</label>
+            <input type="text" id="edit-client-name" oninput="syncFields()" class="w-full text-xs p-2 rounded-lg border border-slate-200 focus:border-indigo-500 focus:outline-none font-medium" value="Lancaster Property Management Company">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Client Email Address</label>
+            <input type="email" id="edit-client-email" oninput="syncFields()" class="w-full text-xs p-2 rounded-lg border border-slate-200 focus:border-indigo-500 focus:outline-none font-medium text-indigo-700" value="info@lancoproperty.com">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Client Address / Billing Details</label>
+            <textarea id="edit-client-address" rows="2" oninput="syncFields()" class="w-full text-xs p-2 rounded-lg border border-slate-200 focus:border-indigo-500 focus:outline-none resize-none" placeholder="Lancaster Property Management Company&#10;Billing Dept | info@lancoproperty.com"></textarea>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
             <div>
-              <div class="inv-header-title">INVOICE</div>
-              <div class="company-details">
-                <div id="view-comp-name" style="font-weight: 600;">Lancaster County Property Management</div>
-                <div id="view-comp-addr">1601 Oregon Pike</div>
-                <div id="view-comp-csz">Lancaster, PA 17601-4447</div>
-                <div id="view-comp-email">info@lancoproperty.com</div>
-                <div id="view-comp-phone">+1 (717) 419-2198</div>
-                <div><a href="#" id="view-comp-web">https://lancoproperty.com/</a></div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Invoice Number</label>
+              <input type="text" id="edit-inv-number" oninput="syncFields()" class="w-full text-xs p-2 rounded-lg border border-slate-200 focus:border-indigo-500 focus:outline-none" value="INV-2026-001">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Payment Status</label>
+              <select id="edit-inv-status" onchange="syncFields()" class="w-full text-xs p-2 rounded-lg border border-slate-200 focus:border-indigo-500 focus:outline-none bg-white">
+                <option value="PENDING" selected>PENDING</option>
+                <option value="PAID">PAID</option>
+                <option value="OVERDUE">OVERDUE</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Invoice Date</label>
+              <input type="date" id="edit-inv-date" oninput="syncFields()" class="w-full text-xs p-2 rounded-lg border border-slate-200 focus:border-indigo-500 focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Due Date</label>
+              <input type="date" id="edit-due-date" oninput="syncFields()" class="w-full text-xs p-2 rounded-lg border border-slate-200 focus:border-indigo-500 focus:outline-none">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Financials & Line Items Controls -->
+      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
+        <h2 class="text-sm font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
+          <i class="fa-solid fa-calculator text-indigo-500"></i> Tax, Discounts & Notes
+        </h2>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Tax Rate (%)</label>
+            <input type="number" id="edit-tax-rate" min="0" step="0.1" value="0" oninput="calculateTotals()" class="w-full text-xs p-2 rounded-lg border border-slate-200 focus:border-indigo-500 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Discount Amount ($)</label>
+            <input type="number" id="edit-discount-val" min="0" step="1" value="0" oninput="calculateTotals()" class="w-full text-xs p-2 rounded-lg border border-slate-200 focus:border-indigo-500 focus:outline-none">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Payment Instructions / Notes</label>
+          <textarea id="edit-notes" rows="2" oninput="syncFields()" class="w-full text-xs p-2 rounded-lg border border-slate-200 focus:border-indigo-500 focus:outline-none resize-none" placeholder="Please send ACH or check payment referencing INV# in payment memo."></textarea>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Terms & Conditions</label>
+          <textarea id="edit-terms" rows="2" oninput="syncFields()" class="w-full text-xs p-2 rounded-lg border border-slate-200 focus:border-indigo-500 focus:outline-none resize-none" placeholder="Payment due within 30 days of invoice date."></textarea>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- RIGHT PANEL: Live Printable Invoice Document -->
+    <section id="preview-panel" class="lg:col-span-7">
+      <div class="sticky top-20">
+        <div class="preview-card bg-white rounded-xl shadow-md border border-slate-200 p-6 sm:p-10 transition-all">
+          
+          <!-- Document Header -->
+          <div class="flex flex-col sm:flex-row justify-between items-start gap-6 border-b border-slate-200 pb-6 mb-6">
+            
+            <!-- Business Info & Logo -->
+            <div class="w-full sm:w-1/2 space-y-2">
+              <div id="preview-logo-container" class="hidden mb-3">
+                <img id="preview-logo" src="" alt="Business Logo" class="max-h-16 max-w-xs object-contain">
+              </div>
+              <h2 id="view-biz-name" class="text-xl font-bold text-slate-900">Your Business Name</h2>
+              <div id="view-biz-address" class="text-xs text-slate-600 whitespace-pre-line leading-relaxed">
+100 Main Street, Suite 400
+Austin, TX 78701
+billing@yourcompany.com | (512) 555-0199
               </div>
             </div>
 
-            <div class="logo-container" style="text-align
+            <!-- Invoice Label & Meta -->
+            <div class="w-full sm:w-1/2 flex flex-col items-start sm:items-end space-y-3">
+              <div class="flex items-center gap-3">
+                <span class="text-2xl font-black tracking-tight text-slate-900 uppercase">INVOICE</span>
+                <span id="view-status-badge" class="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase border bg-amber-100 text-amber-800 border-amber-300">
+                  PENDING
+                </span>
+              </div>
+
+              <div class="text-xs space-y-1 w-full sm:w-auto text-left sm:text-right">
+                <div class="flex sm:justify-end gap-2">
+                  <span class="text-slate-400 font-medium">Invoice #:</span>
+                  <span id="view-inv-number" class="font-bold text-slate-800">INV-2026-001</span>
+                </div>
+                <div class="flex sm:justify-end gap-2">
+                  <span class="text-slate-400 font-medium">Invoice Date:</span>
+                  <span id="view-inv-date" class="font-medium text-slate-700">Oct 14, 2026</span>
+                </div>
+                <div class="flex sm:justify-end gap-2">
+                  <span class="text-slate-400 font-medium">Due Date:</span>
+                  <span id="view-due-date" class="font-semibold text-slate-800">Nov 13, 2026</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Client Info Block -->
+          <div class="mb-6 p-4 bg-slate-50 rounded-lg border border-slate-100">
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Billed To</span>
+            <h3 id="view-client-name" class="font-bold text-sm text-slate-900">Lancaster Property Management Company</h3>
+            <div id="view-client-email-display" class="text-xs font-semibold text-indigo-600 mt-0.5">info@lancoproperty.com</div>
+            <div id="view-client-address" class="text-xs text-slate-600 whitespace-pre-line leading-relaxed mt-1">
+Lancaster Property Management Company
+Billing Dept | info@lancoproperty.com
+            </div>
+          </div>
+
+          <!-- Dynamic Items Table -->
+          <div class="mb-6 overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase tracking-wider bg-slate-50">
+                  <th class="py-2.5 px-3">Description / Line Item</th>
+                  <th class="py-2.5 px-2 text-center w-16">Qty</th>
+                  <th class="py-2.5 px-2 text-right w-24">Rate ($)</th>
+                  <th class="py-2.5 px-3 text-right w-28">Amount ($)</th>
+                  <th class="py-2.5 px-1 w-8 no-print"></th>
+                </tr>
+              </thead>
+              <tbody id="line-items-body" class="divide-y divide-slate-100 text-xs">
+                <!-- Dynamically populated rows -->
+              </tbody>
+            </table>
+
+            <!-- Add Item Button -->
+            <div class="mt-3 no-print">
+              <button onclick="addLineItem()" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 py-1 px-2 rounded hover:bg-indigo-50 transition">
+                <i class="fa-solid fa-plus text-[10px]"></i> Add Line Item
+              </button>
+            </div>
+          </div>
+
+          <!-- Financial Summary Section -->
+          <div class="grid grid-cols-1 sm:grid-cols-12 gap-6 items-start pt-4 border-t border-slate-200">
+            
+            <!-- Terms & Notes -->
+            <div class="sm:col-span-7 space-y-3 text-xs text-slate-600">
+              <div id="view-notes-box">
+                <span class="font-bold text-slate-500 block text-[10px] uppercase tracking-wider">Payment Instructions</span>
+                <p id="view-notes" class="mt-0.5 leading-relaxed text-slate-600 whitespace-pre-line"></p>
+              </div>
+
+              <div id="view-terms-box">
+                <span class="font-bold text-slate-400 block text-[10px] uppercase tracking-wider">Terms</span>
+                <p id="view-terms" class="mt-0.5 text-slate-500 whitespace-pre-line"></p>
+              </div>
+            </div>
+
+            <!-- Totals Column -->
+            <div class="sm:col-span-5 bg-slate-50 p-3.5 rounded-lg border border-slate-200/80 space-y-2 text-xs">
+              <div class="flex justify-between items-center text-slate-600">
+                <span>Subtotal:</span>
+                <span id="view-subtotal" class="font-semibold text-slate-800">$0.00</span>
+              </div>
+
+              <div class="flex justify-between items-center text-slate-600">
+                <span>Tax (<span id="view-tax-rate">0</span>%):</span>
+                <span id="view-tax-val" class="font-medium text-slate-700">$0.00</span>
+              </div>
+
+              <div class="flex justify-between items-center text-slate-600">
+                <span>Discount:</span>
+                <span id="view-discount-val" class="font-medium text-slate-700">-$0.00</span>
+              </div>
+
+              <div class="border-t border-slate-200 my-1"></div>
+
+              <div class="flex justify-between items-center font-bold text-sm text-slate-900 pt-1">
+                <span>Balance Due:</span>
+                <span id="view-grand-total" class="text-base text-indigo-700">$0.00</span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Printed Footer -->
+          <div class="mt-10 pt-4 border-t border-slate-100 text-center text-[10px] text-slate-400 hidden print:block">
+            Thank you for your business!
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Email Draft Overlay Modal -->
+  <div id="email-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 no-print">
+    <div class="bg-white rounded-xl shadow-2xl border border-slate-200 max-w-lg w-full p-6 space-y-4">
+      <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+        <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+          <i class="fa-solid fa-envelope text-indigo-600"></i> Send Invoice via Email
+        </h3>
+        <button onclick="closeEmailModal()" class="text-slate-400 hover:text-slate-600 text-lg">&times;</button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block font-semibold text-slate-600 mb-1">To Address:</label>
+          <input type="text" id="modal-email-to" readonly class="w-full p-2 bg-slate-50 border border-slate-200 rounded text-slate-800 font-medium">
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-600 mb-1">Subject Line:</label>
+          <input type="text" id="modal-email-subject" class="w-full p-2 border border-slate-200 rounded text-slate-800 font-medium">
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-600 mb-1">Formatted Message Body:</label>
+          <textarea id="modal-email-body" rows="9" class="w-full p-2 border border-slate-200 rounded text-slate-700 font-mono text-[11px] leading-relaxed resize-none"></textarea>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
+        <button onclick="copyEmailBody()" class="px-3.5 py-2 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition flex items-center gap-1.5">
+          <i class="fa-solid fa-copy"></i> Copy Body Text
+        </button>
+        <button onclick="launchMailClient()" class="px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg shadow transition flex items-center gap-1.5">
+          <i class="fa-solid fa-arrow-up-right-from-square"></i> Open Mail App
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript App Engine -->
+  <script>
+    // State management
+    let logoDataUrl = '';
+
+    // Initial default items
+    const defaultRentItems = [
+      { description: "Property Services / Maintenance", qty: 1, rate: 1250.00 }
+    ];
+
+    window.addEventListener('DOMContentLoaded', () => {
+      // Set default dates
+      const today = new Date();
+      const dueDate = new Date();
+      dueDate.setDate(today.getDate() + 30);
+
+      document.getElementById('edit-inv-date').value = formatDateInput(today);
+      document.getElementById('edit-due-date').value = formatDateInput(dueDate);
+
+      // Load company profile from LocalStorage if available
+      loadCompanyProfile();
+
+      // Load initial items
+      defaultRentItems.forEach(item => addLineItem(item.description, item.qty, item.rate));
+
+      // Sync form fields to preview
+      syncFields();
+    });
+
+    // Date formatting helper
+    function formatDateInput(d) {
+      return d.toISOString().split('T')[0];
+    }
+
+    function formatDateDisplay(dateStr) {
+      if (!dateStr) return '';
+      const [year, month, day] = dateStr.split('-');
+      const d = new Date(year, month - 1, day);
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    // Currency Formatter
+    function formatMoney(num) {
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        minimumFractionDigits: 2
+      }).format(num || 0);
+    }
+
+    // Sync Editor Form fields to Live Document Preview
+    function syncFields() {
+      // Business info
+      const bizName = document.getElementById('edit-biz-name').value;
+      const bizAddr = document.getElementById('edit-biz-address').value;
+      document.getElementById('view-biz-name').textContent = bizName || 'Your Business Name';
+      document.getElementById('view-biz-address').textContent = bizAddr || 'Your Address & Contact Information';
+
+      // Client info
+      const clientName = document.getElementById('edit-client-name').value;
+      const clientEmail = document.getElementById('edit-client-email').value;
+      const clientAddr = document.getElementById('edit-client-address').value;
+
+      document.getElementById('view-client-name').textContent = clientName || 'Lancaster Property Management Company';
+      document.getElementById('view-client-email-display').textContent = clientEmail || 'info@lancoproperty.com';
+      document.getElementById('view-client-address').textContent = clientAddr || `${clientName}\n${clientEmail}`;
+
+      // Invoice metadata
+      document.getElementById('view-inv-number').textContent = document.getElementById('edit-inv-number').value || 'INV-001';
+      document.getElementById('view-inv-date').textContent = formatDateDisplay(document.getElementById('edit-inv-date').value);
+      document.getElementById('view-due-date').textContent = formatDateDisplay(document.getElementById('edit-due-date').value);
+
+      // Status Badge Styling
+      const status = document.getElementById('edit-inv-status').value;
+      const badge = document.getElementById('view-status-badge');
+      badge.textContent = status;
+      
+      if (status === 'PAID') {
+        badge.className = "px-2.5 py-0.5 rounded-full text-xs font-bold uppercase border bg-emerald-100 text-emerald-800 border-emerald-300";
+      } else if (status === 'OVERDUE') {
+        badge.className = "px-2.5 py-0.5 rounded-full text-xs font-bold uppercase border bg-rose-100 text-rose-800 border-rose-300";
+      } else {
+        badge.className = "px-2.5 py-0.5 rounded-full text-xs font-bold uppercase border bg-amber-100 text-amber-800 border-amber-300";
+      }
+
+      // Notes & Terms
+      const notes = document.getElementById('edit-notes').value;
+      const terms = document.getElementById('edit-terms').value;
+      
+      document.getElementById('view-notes').textContent = notes;
+      document.getElementById('view-terms').textContent = terms;
+      
+      document.getElementById('view-notes-box').style.display = notes ? 'block' : 'none';
+      document.getElementById('view-terms-box').style.display = terms ? 'block' : 'none';
+
+      // Recalculate totals
+      calculateTotals();
+    }
+
+    // Add row to items table
+    function addLineItem(desc = '', qty = 1, rate = 0.00) {
+      const tbody = document.getElementById('line-items-body');
+      const row = document.createElement('tr');
+      row.className = 'line-item-row group hover:bg-slate-50 transition';
+
+      row.innerHTML = `
+        <td class="py-2 px-3">
+          <input type="text" placeholder="Item description..." class="item-desc w-full text-slate-800 font-medium p-1 border border-transparent hover:border-slate-200 focus:border-indigo-500 rounded focus:outline-none" value="${desc}" oninput="calculateTotals()">
+        </td>
+        <td class="py-2 px-2">
+          <input type="number" min="0" step="1" class="item-qty w-full text-center text-slate-800 font-medium p-1 border border-transparent hover:border-slate-200 focus:border-indigo-500 rounded focus:outline-none" value="${qty}" oninput="calculateTotals()">
+        </td>
+        <td class="py-2 px-2">
+          <input type="number" min="0" step="0.01" class="item-rate w-full text-right text-slate-800 font-medium p-1 border border-transparent hover:border-slate-200 focus:border-indigo-500 rounded focus:outline-none" value="${rate}" oninput="calculateTotals()">
+        </td>
+        <td class="py-2 px-3 text-right font-semibold text-slate-800 item-amount">
+          ${formatMoney(qty * rate)}
+        </td>
+        <td class="py-2 px-1 text-center no-print">
+          <button onclick="removeLineItem(this)" class="text-slate-300 hover:text-rose-500 p-1 rounded" title="Delete row">
+            <i class="fa-solid fa-xmark text-xs"></i>
+          </button>
+        </td>
+      `;
+
+      tbody.appendChild(row);
+      calculateTotals();
+    }
+
+    // Remove row
+    function removeLineItem(btn) {
+      const tbody = document.getElementById('line-items-body');
+      if (tbody.children.length > 1) {
+        btn.closest('tr').remove();
+        calculateTotals();
+      } else {
+        showToast('Invoice must have at least one row.');
+      }
+    }
+
+    // Recalculate balance
+    function calculateTotals() {
+      let subtotal = 0;
+      const rows = document.querySelectorAll('.line-item-row');
+
+      rows.forEach(row => {
+        const qty = parseFloat(row.querySelector('.item-qty').value) || 0;
+        const rate = parseFloat(row.querySelector('.item-rate').value) || 0;
+        const amount = qty * rate;
+
+        row.querySelector('.item-amount').textContent = formatMoney(amount);
+        subtotal += amount;
+      });
+
+      const taxRate = parseFloat(document.getElementById('edit-tax-rate').value) || 0;
+      const taxVal = subtotal * (taxRate / 100);
+
+      const discountVal = parseFloat(document.getElementById('edit-discount-val').value) || 0;
+      const grandTotal = Math.max(0, subtotal + taxVal - discountVal);
+
+      // Update Preview
+      document.getElementById('view-subtotal').textContent = formatMoney(subtotal);
+      document.getElementById('view-tax-rate').textContent = taxRate;
+      document.getElementById('view-tax-val').textContent = formatMoney(taxVal);
+      document.getElementById('view-discount-val').textContent = `-${formatMoney(discountVal)}`;
+      document.getElementById('view-grand-total').textContent = formatMoney(grandTotal);
+    }
+
+    // Logo Upload Handling (Base64)
+    function handleLogoUpload(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          logoDataUrl = e.target.result;
+          document.getElementById('preview-logo').src = logoDataUrl;
+          document.getElementById('preview-logo-container').classList.remove('hidden');
+          document.getElementById('remove-logo-btn').classList.remove('hidden');
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function removeLogo() {
+      logoDataUrl = '';
+      document.getElementById('preview-logo').src = '';
+      document.getElementById('preview-logo-container').classList.add('hidden');
+      document.getElementById('remove-logo-btn').classList.add('hidden');
+      document.getElementById('logo-input').value = '';
+    }
+
+    // LocalStorage Company Profile Persistence
+    function saveCompanyProfile() {
+      const profile = {
+        name: document.getElementById('edit-biz-name').value,
+        address: document.getElementById('edit-biz-address').value,
+        notes: document.getElementById('edit-notes').value,
+        terms: document.getElementById('edit-terms').value,
+        logo: logoDataUrl
+      };
+      localStorage.setItem('invoice_studio_profile', JSON.stringify(profile));
+      showToast('Business details saved to browser storage!');
+    }
+
+    function loadCompanyProfile() {
+      const saved = localStorage.getItem('invoice_studio_profile');
+      if (saved) {
+        try {
+          const profile = JSON.parse(saved);
+          if (profile.name) document.getElementById('edit-biz-name').value = profile.name;
+          if (profile.address) document.getElementById('edit-biz-address').value = profile.address;
+          if (profile.notes) document.getElementById('edit-notes').value = profile.notes;
+          if (profile.terms) document.getElementById('edit-terms').value = profile.terms;
+          if (profile.logo) {
+            logoDataUrl = profile.logo;
+            document.getElementById('preview-logo').src = logoDataUrl;
+            document.getElementById('preview-logo-container').classList.remove('hidden');
+            document.getElementById('remove-logo-btn').classList.remove('hidden');
+          }
+        } catch(e) {
+          console.error(e);
+        }
+      } else {
+        document.getElementById('edit-biz-name').value = "My Property Services";
+        document.getElementById('edit-biz-address').value = "100 Main Street, Suite 400\nAustin, TX 78701\nbilling@mycompany.com | (512) 555-0199";
+        document.getElementById('edit-notes').value = "Please send ACH or check payment referencing INV# in payment memo.";
+        document.getElementById('edit-terms').value = "Payment due within 30 days of invoice date.";
+      }
+    }
+
+    // Reset Form to Default Lancaster Settings
+    function clearForm() {
+      document.getElementById('edit-client-name').value = "Lancaster Property Management Company";
+      document.getElementById('edit-client-email').value = "info@lancoproperty.com";
+      document.getElementById('edit-client-address').value = "Lancaster Property Management Company\nBilling Dept | info@lancoproperty.com";
+      document.getElementById('edit-tax-rate').value = 0;
+      document.getElementById('edit-discount-val').value = 0;
+
+      const tbody = document.getElementById('line-items-body');
+      tbody.innerHTML = '';
+      defaultRentItems.forEach(item => addLineItem(item.description, item.qty, item.rate));
+
+      const randomNum = Math.floor(1000 + Math.random() * 9000);
+      document.getElementById('edit-inv-number').value = `INV-2026-${randomNum}`;
+
+      syncFields();
+      showToast('Reset to Lancaster Property Management default!');
+    }
+
+    // Email Modal & Mailto Engine
+    function openEmailModal() {
+      const invNum = document.getElementById('edit-inv-number').value || 'INV-001';
+      const bizName = document.getElementById('edit-biz-name').value || 'Our Company';
+      const clientName = document.getElementById('edit-client-name').value || 'Lancaster Property Management Company';
+      const clientEmail = document.getElementById('edit-client-email').value || 'info@lancoproperty.com';
+      const grandTotal = document.getElementById('view-grand-total').textContent;
+      const dueDate = formatDateDisplay(document.getElementById('edit-due-date').value);
+
+      // Construct plain text breakdown of line items
+      let itemsListText = '';
+      const rows = document.querySelectorAll('.line-item-row');
+      rows.forEach(row => {
+        const desc = row.querySelector('.item-desc').value || 'Service Item';
+        const qty = row.querySelector('.item-qty').value || '1';
+        const rate = row.querySelector('.item-rate').value || '0';
+        const amt = row.querySelector('.item-amount').textContent;
+        itemsListText += ` • ${desc} (Qty: ${qty} @ $${rate}) = ${amt}\n`;
+      });
+
+      const emailSubject = `Invoice ${invNum} from ${bizName}`;
+      const emailBody = `Hello ${clientName},\n\nPlease find the summary for invoice ${invNum} below:\n\n` +
+                        `Invoice #: ${invNum}\n` +
+                        `Due Date: ${dueDate}\n` +
+                        `Total Amount: ${grandTotal}\n\n` +
+                        `LINE ITEMS:\n${itemsListText}\n` +
+                        `Payment Notes:\n${document.getElementById('edit-notes').value}\n\n` +
+                        `Thank you,\n${bizName}`;
+
+      document.getElementById('modal-email-to').value = clientEmail;
+      document.getElementById('modal-email-subject').value = emailSubject;
+      document.getElementById('modal-email-body').value = emailBody;
+
+      document.getElementById('email-modal').classList.remove('hidden');
+    }
+
+    function closeEmailModal() {
+      document.getElementById('email-modal').classList.add('hidden');
+    }
+
+    function copyEmailBody() {
+      const text = document.getElementById('modal-email-body').value;
+      
+      // ExecCommand fallback for iframe clipboard execution
+      const tempArea = document.createElement('textarea');
+      tempArea.value = text;
+      document.body.appendChild(tempArea);
+      tempArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(tempArea);
+
+      showToast('Email content copied to clipboard!');
+    }
+
+    function launchMailClient() {
+      const to = encodeURIComponent(document.getElementById('modal-email-to').value);
+      const subject = encodeURIComponent(document.getElementById('modal-email-subject').value);
+      const body = encodeURIComponent(document.getElementById('modal-email-body').value);
+
+      window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
+    }
+
+    // UI Toast notification helper
+    function showToast(msg) {
+      const toast = document.getElementById('toast-msg');
+      document.getElementById('toast-text').textContent = msg;
+      toast.classList.remove('hidden');
+      setTimeout(() => hideToast(), 3500);
+    }
+
+    function hideToast() {
+      document.getElementById('toast-msg').classList.add('hidden');
+    }
+  </script>
+</body>
+</html>
