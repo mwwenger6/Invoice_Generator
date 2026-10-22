@@ -1,8 +1,3 @@
-Here is the final, complete single-file `index.html` featuring your exact **Lancaster County Property Management** header, editable invoice numbering, client dropdown choices, dynamic line items, email summary formatting, and clean PDF print output.
-
-You can copy and paste this code directly into your repository file on GitHub:
-
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -158,7 +153,7 @@ You can copy and paste this code directly into your repository file on GitHub:
         <button onclick="hideToast()" class="text-emerald-800 font-bold ml-2">&times;</button>
       </div>
 
-      <!-- Company Hardcoded Details Box -->
+      <!-- Company Details Box -->
       <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
         <h2 class="text-sm font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
           <i class="fa-solid fa-building text-indigo-500"></i> Company Profile (Fixed)
@@ -171,18 +166,21 @@ You can copy and paste this code directly into your repository file on GitHub:
         </div>
       </div>
 
-      <!-- Invoice Tracking & Numbering -->
+      <!-- Invoice Tracking, Job Name & Numbering -->
       <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
         <h2 class="text-sm font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
-          <i class="fa-solid fa-hashtag text-indigo-500"></i> Invoice Sequence & Tracking
+          <i class="fa-solid fa-hashtag text-indigo-500"></i> Invoice & Job Information
         </h2>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Job Name / Property Reference</label>
+          <input type="text" id="edit-job-name" oninput="syncFields()" class="w-full text-xs p-2 rounded-lg border border-slate-200 focus:border-indigo-500 focus:outline-none font-medium text-slate-900" placeholder="e.g. 930 N Shippen St - Trash removal & paint" value="930 N Shippen St">
+        </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="block text-xs font-semibold text-slate-600 mb-1">Invoice Number</label>
-            <div class="flex items-center gap-1">
-              <input type="number" id="edit-inv-number" oninput="saveAndSyncInvNo()" class="w-full text-xs p-2 rounded-lg border border-slate-200 focus:border-indigo-500 focus:outline-none font-bold text-indigo-700" value="1175">
-            </div>
+            <input type="number" id="edit-inv-number" oninput="saveAndSyncInvNo()" class="w-full text-xs p-2 rounded-lg border border-slate-200 focus:border-indigo-500 focus:outline-none font-bold text-indigo-700" value="1175">
             <span class="text-[10px] text-slate-400">Editable for manual entries</span>
           </div>
 
@@ -204,7 +202,7 @@ You can copy and paste this code directly into your repository file on GitHub:
         </div>
       </div>
 
-      <!-- Client Details with Dropdown -->
+      <!-- Client Details with Cleaned-up Dropdown -->
       <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
         <h2 class="text-sm font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
           <i class="fa-solid fa-user-tag text-indigo-500"></i> Client Details ("Bill To")
@@ -266,7 +264,7 @@ You can copy and paste this code directly into your repository file on GitHub:
           </div>
 
           <!-- 3-Column Info Block -->
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 text-xs border-b border-slate-100 pb-6">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4 text-xs">
             <div>
               <span class="font-bold text-slate-900 block mb-1">Bill to</span>
               <div id="view-bill-to" class="text-slate-700 leading-relaxed font-medium">Lancaster County Property Management</div>
@@ -298,6 +296,12 @@ You can copy and paste this code directly into your repository file on GitHub:
               <span class="font-bold text-slate-900 block mb-1">Ship to</span>
               <div id="view-ship-to" class="text-slate-700 leading-relaxed font-medium">Lancaster County Property Management</div>
             </div>
+          </div>
+
+          <!-- Job Name Display Banner -->
+          <div id="view-job-container" class="mb-6 p-2.5 bg-slate-50 rounded border border-slate-200 text-xs flex items-center gap-2">
+            <span class="font-bold text-slate-500 uppercase tracking-wider text-[10px]">Job Name / Ref:</span>
+            <span id="view-job-name" class="font-bold text-slate-900">930 N Shippen St</span>
           </div>
 
           <!-- Dynamic Items Table -->
@@ -461,10 +465,13 @@ You can copy and paste this code directly into your repository file on GitHub:
       document.getElementById('edit-inv-number').value = nextNum;
       saveAndSyncInvNo();
 
+      document.getElementById('edit-job-name').value = '';
+
       const tbody = document.getElementById('line-items-body');
       tbody.innerHTML = '';
       addLineItem('', '', 1, 0);
 
+      syncFields();
       showToast(`Advanced to Invoice #${nextNum}`);
     }
 
@@ -484,9 +491,14 @@ You can copy and paste this code directly into your repository file on GitHub:
 
     function syncFields() {
       const clientName = document.getElementById('edit-client-name').value || 'Lancaster County Property Management';
+      const jobName = document.getElementById('edit-job-name').value || '';
 
       document.getElementById('view-bill-to').textContent = clientName;
       document.getElementById('view-ship-to').textContent = clientName;
+
+      // Job Name sync
+      document.getElementById('view-job-name').textContent = jobName;
+      document.getElementById('view-job-container').style.display = jobName ? 'flex' : 'none';
 
       document.getElementById('view-inv-number').textContent = document.getElementById('edit-inv-number').value || '1175';
       document.getElementById('view-terms').textContent = document.getElementById('edit-terms-text').value || 'Net 30';
@@ -564,6 +576,7 @@ You can copy and paste this code directly into your repository file on GitHub:
       const invNum = document.getElementById('edit-inv-number').value || '1175';
       const clientName = document.getElementById('edit-client-name').value || 'Lancaster County Property Management';
       const clientEmail = document.getElementById('edit-client-email').value || 'info@lancoproperty.com';
+      const jobName = document.getElementById('edit-job-name').value || '';
       const grandTotal = document.getElementById('view-grand-total').textContent;
       const dueDate = formatDateDisplay(document.getElementById('edit-due-date').value);
 
@@ -578,9 +591,10 @@ You can copy and paste this code directly into your repository file on GitHub:
         itemsListText += ` ${i + 1}. ${prod} - ${desc} (${qty} @ $${rate}) = ${amt}\n`;
       });
 
-      const emailSubject = `Invoice #${invNum} - Lancaster County Property Management`;
+      const emailSubject = `Invoice #${invNum}${jobName ? ' - ' + jobName : ''} - Lancaster County Property Management`;
       const emailBody = `Hello ${clientName},\n\nPlease find the summary for invoice #${invNum} below:\n\n` +
                         `Invoice #: ${invNum}\n` +
+                        (jobName ? `Job / Reference: ${jobName}\n` : '') +
                         `Date: ${formatDateDisplay(document.getElementById('edit-inv-date').value)}\n` +
                         `Due Date: ${dueDate}\n\n` +
                         `LINE ITEMS:\n${itemsListText}\n` +
@@ -631,5 +645,3 @@ You can copy and paste this code directly into your repository file on GitHub:
   </script>
 </body>
 </html>
-
-```
