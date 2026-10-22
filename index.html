@@ -1,9 +1,14 @@
+Here is the final, complete single-file `index.html` featuring your exact **Lancaster County Property Management** header, editable invoice numbering, client dropdown choices, dynamic line items, email summary formatting, and clean PDF print output.
+
+You can copy and paste this code directly into your repository file on GitHub:
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Invoice Studio - Standalone Invoice Generator</title>
+  <title>Invoice Studio - Lancaster County Property Management</title>
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -11,7 +16,7 @@
   <!-- Inter Font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -22,15 +27,6 @@
         extend: {
           fontFamily: {
             sans: ['Inter', 'sans-serif'],
-          },
-          colors: {
-            brand: {
-              50: '#f0f4f8',
-              100: '#d9e2ec',
-              500: '#102a43',
-              600: '#0b1b2b',
-              700: '#08121e',
-            }
           }
         }
       }
@@ -73,8 +69,7 @@
       .no-print, 
       #editor-panel,
       #email-modal,
-      header,
-      footer {
+      header {
         display: none !important;
       }
 
@@ -109,7 +104,6 @@
         color: transparent !important;
       }
 
-      /* Force background color for tables on print */
       th {
         background-color: #f8fafc !important;
         color: #1e293b !important;
@@ -128,20 +122,15 @@
         </div>
         <div>
           <h1 class="font-bold text-base sm:text-lg text-white leading-tight">Invoice Studio</h1>
-          <p class="text-xs text-slate-400 hidden sm:block">Quick QuickBooks replacement for billing & property invoices</p>
+          <p class="text-xs text-slate-400 hidden sm:block">Lancaster County Property Management</p>
         </div>
       </div>
 
       <!-- Quick Actions -->
       <div class="flex items-center gap-2 sm:gap-3">
-        <button onclick="saveCompanyProfile()" title="Save Company Info to LocalStorage" class="px-3 py-1.5 text-xs font-medium text-emerald-300 bg-emerald-950/60 hover:bg-emerald-900/80 border border-emerald-700/60 rounded-lg transition flex items-center gap-1.5">
-          <i class="fa-solid fa-floppy-disk"></i>
-          <span class="hidden md:inline">Save My Details</span>
-        </button>
-
-        <button onclick="clearForm()" title="Reset to Lancaster Default Client" class="px-3 py-1.5 text-xs font-medium text-rose-300 bg-rose-950/60 hover:bg-rose-900/80 border border-rose-700/60 rounded-lg transition flex items-center gap-1.5">
-          <i class="fa-solid fa-rotate-left"></i>
-          <span class="hidden md:inline">Reset Form</span>
+        <button onclick="nextInvoice()" title="Increment Invoice # and clear line items for next invoice" class="px-3 py-1.5 text-xs font-medium text-emerald-300 bg-emerald-950/60 hover:bg-emerald-900/80 border border-emerald-700/60 rounded-lg transition flex items-center gap-1.5">
+          <i class="fa-solid fa-plus"></i>
+          <span>New Invoice (Next #)</span>
         </button>
 
         <button onclick="openEmailModal()" class="px-3.5 py-1.5 text-xs sm:text-sm font-semibold text-indigo-100 bg-indigo-900/80 hover:bg-indigo-800 border border-indigo-700 rounded-lg shadow-sm transition flex items-center gap-2">
@@ -160,7 +149,7 @@
   <!-- Main Container: Side-by-side Builder & Live Preview -->
   <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
     
-    <!-- LEFT PANEL: Editor & Form Controls -->
+    <!-- LEFT PANEL: Form Controls -->
     <section id="editor-panel" class="lg:col-span-5 space-y-6 no-print">
       
       <!-- Toast Alert Box -->
@@ -169,109 +158,79 @@
         <button onclick="hideToast()" class="text-emerald-800 font-bold ml-2">&times;</button>
       </div>
 
-      <!-- Business Details Card -->
-      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
+      <!-- Company Hardcoded Details Box -->
+      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
         <h2 class="text-sm font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
-          <i class="fa-solid fa-store text-indigo-500"></i> Your Business Info
+          <i class="fa-solid fa-building text-indigo-500"></i> Company Profile (Fixed)
         </h2>
-        
-        <!-- Logo Upload -->
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Company Logo</label>
-          <div class="flex items-center gap-3">
-            <input type="file" id="logo-input" accept="image/*" onchange="handleLogoUpload(event)" class="text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
-            <button onclick="removeLogo()" id="remove-logo-btn" class="hidden text-xs text-rose-600 hover:underline font-medium">Remove Logo</button>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 gap-3">
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Business Name</label>
-            <input type="text" id="edit-biz-name" oninput="syncFields()" class="w-full text-xs p-2 rounded-lg border border-slate-200 focus:border-indigo-500 focus:outline-none" placeholder="Your Company Name">
-          </div>
-          
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Address & Contact Info</label>
-            <textarea id="edit-biz-address" rows="3" oninput="syncFields()" class="w-full text-xs p-2 rounded-lg border border-slate-200 focus:border-indigo-500 focus:outline-none resize-none" placeholder="100 Main Street, Suite 400&#10;Austin, TX 78701&#10;billing@yourcompany.com | (512) 555-0199"></textarea>
-          </div>
+        <div class="text-xs text-slate-700 bg-slate-50 p-3 rounded-lg border border-slate-200 space-y-1">
+          <div class="font-bold text-slate-900">Lancaster County Property Management</div>
+          <div>1601 Oregon Pike</div>
+          <div>Lancaster, PA 17601-4447</div>
+          <div class="text-slate-500">info@lancoproperty.com | +1 (717) 419-2198</div>
         </div>
       </div>
 
-      <!-- Client & Invoice Meta Card -->
+      <!-- Invoice Tracking & Numbering -->
       <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
         <h2 class="text-sm font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
-          <i class="fa-solid fa-user-tag text-indigo-500"></i> Client Details & Metadata
-        </h2>
-
-        <div class="grid grid-cols-1 gap-3">
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Client / Company Name</label>
-            <input type="text" id="edit-client-name" oninput="syncFields()" class="w-full text-xs p-2 rounded-lg border border-slate-200 focus:border-indigo-500 focus:outline-none font-medium" value="Lancaster Property Management Company">
-          </div>
-
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Client Email Address</label>
-            <input type="email" id="edit-client-email" oninput="syncFields()" class="w-full text-xs p-2 rounded-lg border border-slate-200 focus:border-indigo-500 focus:outline-none font-medium text-indigo-700" value="info@lancoproperty.com">
-          </div>
-
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Client Address / Billing Details</label>
-            <textarea id="edit-client-address" rows="2" oninput="syncFields()" class="w-full text-xs p-2 rounded-lg border border-slate-200 focus:border-indigo-500 focus:outline-none resize-none" placeholder="Lancaster Property Management Company&#10;Billing Dept | info@lancoproperty.com"></textarea>
-          </div>
-
-          <div class="grid grid-cols-2 gap-3">
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Invoice Number</label>
-              <input type="text" id="edit-inv-number" oninput="syncFields()" class="w-full text-xs p-2 rounded-lg border border-slate-200 focus:border-indigo-500 focus:outline-none" value="INV-2026-001">
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Payment Status</label>
-              <select id="edit-inv-status" onchange="syncFields()" class="w-full text-xs p-2 rounded-lg border border-slate-200 focus:border-indigo-500 focus:outline-none bg-white">
-                <option value="PENDING" selected>PENDING</option>
-                <option value="PAID">PAID</option>
-                <option value="OVERDUE">OVERDUE</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-2 gap-3">
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Invoice Date</label>
-              <input type="date" id="edit-inv-date" oninput="syncFields()" class="w-full text-xs p-2 rounded-lg border border-slate-200 focus:border-indigo-500 focus:outline-none">
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Due Date</label>
-              <input type="date" id="edit-due-date" oninput="syncFields()" class="w-full text-xs p-2 rounded-lg border border-slate-200 focus:border-indigo-500 focus:outline-none">
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Financials & Line Items Controls -->
-      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
-        <h2 class="text-sm font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
-          <i class="fa-solid fa-calculator text-indigo-500"></i> Tax, Discounts & Notes
+          <i class="fa-solid fa-hashtag text-indigo-500"></i> Invoice Sequence & Tracking
         </h2>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Tax Rate (%)</label>
-            <input type="number" id="edit-tax-rate" min="0" step="0.1" value="0" oninput="calculateTotals()" class="w-full text-xs p-2 rounded-lg border border-slate-200 focus:border-indigo-500 focus:outline-none">
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Invoice Number</label>
+            <div class="flex items-center gap-1">
+              <input type="number" id="edit-inv-number" oninput="saveAndSyncInvNo()" class="w-full text-xs p-2 rounded-lg border border-slate-200 focus:border-indigo-500 focus:outline-none font-bold text-indigo-700" value="1175">
+            </div>
+            <span class="text-[10px] text-slate-400">Editable for manual entries</span>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Terms</label>
+            <input type="text" id="edit-terms-text" oninput="syncFields()" class="w-full text-xs p-2 rounded-lg border border-slate-200 focus:border-indigo-500 focus:outline-none" value="Net 30">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Invoice Date</label>
+            <input type="date" id="edit-inv-date" onchange="autoCalculateDueDate()" class="w-full text-xs p-2 rounded-lg border border-slate-200 focus:border-indigo-500 focus:outline-none">
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Discount Amount ($)</label>
-            <input type="number" id="edit-discount-val" min="0" step="1" value="0" oninput="calculateTotals()" class="w-full text-xs p-2 rounded-lg border border-slate-200 focus:border-indigo-500 focus:outline-none">
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Due Date</label>
+            <input type="date" id="edit-due-date" oninput="syncFields()" class="w-full text-xs p-2 rounded-lg border border-slate-200 focus:border-indigo-500 focus:outline-none">
           </div>
         </div>
+      </div>
 
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Payment Instructions / Notes</label>
-          <textarea id="edit-notes" rows="2" oninput="syncFields()" class="w-full text-xs p-2 rounded-lg border border-slate-200 focus:border-indigo-500 focus:outline-none resize-none" placeholder="Please send ACH or check payment referencing INV# in payment memo."></textarea>
-        </div>
+      <!-- Client Details with Dropdown -->
+      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
+        <h2 class="text-sm font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
+          <i class="fa-solid fa-user-tag text-indigo-500"></i> Client Details ("Bill To")
+        </h2>
 
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Terms & Conditions</label>
-          <textarea id="edit-terms" rows="2" oninput="syncFields()" class="w-full text-xs p-2 rounded-lg border border-slate-200 focus:border-indigo-500 focus:outline-none resize-none" placeholder="Payment due within 30 days of invoice date."></textarea>
+        <div class="space-y-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Select Client</label>
+            <select id="client-dropdown" onchange="handleClientDropdownChange()" class="w-full text-xs p-2 rounded-lg border border-slate-200 focus:border-indigo-500 focus:outline-none bg-white font-medium">
+              <option value="lcpm" selected>Lancaster County Property Management</option>
+              <option value="lpmc">Lancaster Property Management Company</option>
+              <option value="custom">-- Enter Custom Client / Company --</option>
+            </select>
+          </div>
+
+          <div id="custom-client-container" class="space-y-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Client Name</label>
+              <input type="text" id="edit-client-name" oninput="syncFields()" class="w-full text-xs p-2 rounded-lg border border-slate-200 focus:border-indigo-500 focus:outline-none font-medium" value="Lancaster County Property Management">
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Client Email</label>
+              <input type="email" id="edit-client-email" oninput="syncFields()" class="w-full text-xs p-2 rounded-lg border border-slate-200 focus:border-indigo-500 focus:outline-none font-medium text-indigo-700" value="info@lancoproperty.com">
+            </div>
+          </div>
         </div>
       </div>
 
@@ -285,54 +244,60 @@
           <!-- Document Header -->
           <div class="flex flex-col sm:flex-row justify-between items-start gap-6 border-b border-slate-200 pb-6 mb-6">
             
-            <!-- Business Info & Logo -->
-            <div class="w-full sm:w-1/2 space-y-2">
-              <div id="preview-logo-container" class="hidden mb-3">
-                <img id="preview-logo" src="" alt="Business Logo" class="max-h-16 max-w-xs object-contain">
-              </div>
-              <h2 id="view-biz-name" class="text-xl font-bold text-slate-900">Your Business Name</h2>
-              <div id="view-biz-address" class="text-xs text-slate-600 whitespace-pre-line leading-relaxed">
-100 Main Street, Suite 400
-Austin, TX 78701
-billing@yourcompany.com | (512) 555-0199
+            <!-- Business Info -->
+            <div class="w-full sm:w-1/2 space-y-1">
+              <h2 class="text-xl font-bold text-slate-900 uppercase tracking-tight">INVOICE</h2>
+              <div class="text-xs text-slate-600 leading-relaxed font-medium">
+                <div class="font-bold text-slate-900">Lancaster County Property Management</div>
+                <div>1601 Oregon Pike</div>
+                <div>Lancaster, PA 17601-4447</div>
+                <div>info@lancoproperty.com</div>
+                <div>+1 (717) 419-2198</div>
+                <div><a href="https://lancoproperty.com/" target="_blank" class="text-indigo-600 underline">https://lancoproperty.com/</a></div>
               </div>
             </div>
 
-            <!-- Invoice Label & Meta -->
-            <div class="w-full sm:w-1/2 flex flex-col items-start sm:items-end space-y-3">
-              <div class="flex items-center gap-3">
-                <span class="text-2xl font-black tracking-tight text-slate-900 uppercase">INVOICE</span>
-                <span id="view-status-badge" class="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase border bg-amber-100 text-amber-800 border-amber-300">
-                  PENDING
-                </span>
-              </div>
-
-              <div class="text-xs space-y-1 w-full sm:w-auto text-left sm:text-right">
-                <div class="flex sm:justify-end gap-2">
-                  <span class="text-slate-400 font-medium">Invoice #:</span>
-                  <span id="view-inv-number" class="font-bold text-slate-800">INV-2026-001</span>
-                </div>
-                <div class="flex sm:justify-end gap-2">
-                  <span class="text-slate-400 font-medium">Invoice Date:</span>
-                  <span id="view-inv-date" class="font-medium text-slate-700">Oct 14, 2026</span>
-                </div>
-                <div class="flex sm:justify-end gap-2">
-                  <span class="text-slate-400 font-medium">Due Date:</span>
-                  <span id="view-due-date" class="font-semibold text-slate-800">Nov 13, 2026</span>
-                </div>
+            <!-- Company Logo Badge -->
+            <div class="w-full sm:w-1/2 flex flex-col items-start sm:items-end text-left sm:text-right">
+              <div class="font-black text-sm text-slate-900 tracking-wider uppercase leading-tight">
+                LANCASTER COUNTY<br>PROPERTY MANAGEMENT
               </div>
             </div>
 
           </div>
 
-          <!-- Client Info Block -->
-          <div class="mb-6 p-4 bg-slate-50 rounded-lg border border-slate-100">
-            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Billed To</span>
-            <h3 id="view-client-name" class="font-bold text-sm text-slate-900">Lancaster Property Management Company</h3>
-            <div id="view-client-email-display" class="text-xs font-semibold text-indigo-600 mt-0.5">info@lancoproperty.com</div>
-            <div id="view-client-address" class="text-xs text-slate-600 whitespace-pre-line leading-relaxed mt-1">
-Lancaster Property Management Company
-Billing Dept | info@lancoproperty.com
+          <!-- 3-Column Info Block -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 text-xs border-b border-slate-100 pb-6">
+            <div>
+              <span class="font-bold text-slate-900 block mb-1">Bill to</span>
+              <div id="view-bill-to" class="text-slate-700 leading-relaxed font-medium">Lancaster County Property Management</div>
+            </div>
+
+            <div>
+              <span class="font-bold text-slate-900 block mb-1">Invoice details</span>
+              <div class="space-y-1 text-slate-700">
+                <div class="flex justify-between sm:justify-start sm:gap-2">
+                  <span class="text-slate-500">Invoice no.:</span>
+                  <span id="view-inv-number" class="font-bold text-slate-900">1175</span>
+                </div>
+                <div class="flex justify-between sm:justify-start sm:gap-2">
+                  <span class="text-slate-500">Terms:</span>
+                  <span id="view-terms" class="font-semibold text-slate-800">Net 30</span>
+                </div>
+                <div class="flex justify-between sm:justify-start sm:gap-2">
+                  <span class="text-slate-500">Invoice date:</span>
+                  <span id="view-inv-date" class="font-medium">10/19/2026</span>
+                </div>
+                <div class="flex justify-between sm:justify-start sm:gap-2">
+                  <span class="text-slate-500">Due date:</span>
+                  <span id="view-due-date" class="font-medium">11/18/2026</span>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <span class="font-bold text-slate-900 block mb-1">Ship to</span>
+              <div id="view-ship-to" class="text-slate-700 leading-relaxed font-medium">Lancaster County Property Management</div>
             </div>
           </div>
 
@@ -340,16 +305,18 @@ Billing Dept | info@lancoproperty.com
           <div class="mb-6 overflow-x-auto">
             <table class="w-full text-left border-collapse">
               <thead>
-                <tr class="border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase tracking-wider bg-slate-50">
-                  <th class="py-2.5 px-3">Description / Line Item</th>
-                  <th class="py-2.5 px-2 text-center w-16">Qty</th>
-                  <th class="py-2.5 px-2 text-right w-24">Rate ($)</th>
-                  <th class="py-2.5 px-3 text-right w-28">Amount ($)</th>
-                  <th class="py-2.5 px-1 w-8 no-print"></th>
+                <tr class="border-b-2 border-slate-900 text-[11px] font-bold text-slate-900 uppercase">
+                  <th class="py-2 px-1 w-8">#</th>
+                  <th class="py-2 px-2 w-36">Product or service</th>
+                  <th class="py-2 px-2">Description</th>
+                  <th class="py-2 px-2 text-center w-14">Qty</th>
+                  <th class="py-2 px-2 text-right w-24">Rate</th>
+                  <th class="py-2 px-2 text-right w-24">Amount</th>
+                  <th class="py-2 px-1 w-6 no-print"></th>
                 </tr>
               </thead>
               <tbody id="line-items-body" class="divide-y divide-slate-100 text-xs">
-                <!-- Dynamically populated rows -->
+                <!-- Dynamic Rows -->
               </tbody>
             </table>
 
@@ -361,52 +328,25 @@ Billing Dept | info@lancoproperty.com
             </div>
           </div>
 
-          <!-- Financial Summary Section -->
-          <div class="grid grid-cols-1 sm:grid-cols-12 gap-6 items-start pt-4 border-t border-slate-200">
-            
-            <!-- Terms & Notes -->
-            <div class="sm:col-span-7 space-y-3 text-xs text-slate-600">
-              <div id="view-notes-box">
-                <span class="font-bold text-slate-500 block text-[10px] uppercase tracking-wider">Payment Instructions</span>
-                <p id="view-notes" class="mt-0.5 leading-relaxed text-slate-600 whitespace-pre-line"></p>
-              </div>
-
-              <div id="view-terms-box">
-                <span class="font-bold text-slate-400 block text-[10px] uppercase tracking-wider">Terms</span>
-                <p id="view-terms" class="mt-0.5 text-slate-500 whitespace-pre-line"></p>
-              </div>
+          <!-- Total Summary -->
+          <div class="flex justify-end pt-4 border-t border-slate-200">
+            <div class="w-48 flex justify-between items-center text-slate-900">
+              <span class="font-bold text-sm">Total</span>
+              <span id="view-grand-total" class="font-black text-lg text-slate-900">$180.00</span>
             </div>
-
-            <!-- Totals Column -->
-            <div class="sm:col-span-5 bg-slate-50 p-3.5 rounded-lg border border-slate-200/80 space-y-2 text-xs">
-              <div class="flex justify-between items-center text-slate-600">
-                <span>Subtotal:</span>
-                <span id="view-subtotal" class="font-semibold text-slate-800">$0.00</span>
-              </div>
-
-              <div class="flex justify-between items-center text-slate-600">
-                <span>Tax (<span id="view-tax-rate">0</span>%):</span>
-                <span id="view-tax-val" class="font-medium text-slate-700">$0.00</span>
-              </div>
-
-              <div class="flex justify-between items-center text-slate-600">
-                <span>Discount:</span>
-                <span id="view-discount-val" class="font-medium text-slate-700">-$0.00</span>
-              </div>
-
-              <div class="border-t border-slate-200 my-1"></div>
-
-              <div class="flex justify-between items-center font-bold text-sm text-slate-900 pt-1">
-                <span>Balance Due:</span>
-                <span id="view-grand-total" class="text-base text-indigo-700">$0.00</span>
-              </div>
-            </div>
-
           </div>
 
-          <!-- Printed Footer -->
-          <div class="mt-10 pt-4 border-t border-slate-100 text-center text-[10px] text-slate-400 hidden print:block">
-            Thank you for your business!
+          <!-- Ways to Pay Footer -->
+          <div class="mt-12 pt-4 border-t border-slate-200">
+            <div class="text-xs font-bold text-slate-900 mb-2">Ways to pay</div>
+            <div class="flex flex-wrap gap-1.5 text-[10px] font-black text-slate-600">
+              <span class="px-2 py-0.5 bg-slate-100 border border-slate-300 rounded uppercase">VISA</span>
+              <span class="px-2 py-0.5 bg-slate-100 border border-slate-300 rounded uppercase">DISCOVER</span>
+              <span class="px-2 py-0.5 bg-slate-100 border border-slate-300 rounded uppercase">AMEX</span>
+              <span class="px-2 py-0.5 bg-slate-100 border border-slate-300 rounded uppercase">BANK</span>
+              <span class="px-2 py-0.5 bg-slate-100 border border-slate-300 rounded uppercase">PayPal</span>
+              <span class="px-2 py-0.5 bg-slate-100 border border-slate-300 rounded uppercase">Venmo</span>
+            </div>
           </div>
 
         </div>
@@ -420,7 +360,7 @@ Billing Dept | info@lancoproperty.com
     <div class="bg-white rounded-xl shadow-2xl border border-slate-200 max-w-lg w-full p-6 space-y-4">
       <div class="flex justify-between items-center border-b border-slate-100 pb-3">
         <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
-          <i class="fa-solid fa-envelope text-indigo-600"></i> Send Invoice via Email
+          <i class="fa-solid fa-envelope text-indigo-600"></i> Send Invoice Summary
         </h3>
         <button onclick="closeEmailModal()" class="text-slate-400 hover:text-slate-600 text-lg">&times;</button>
       </div>
@@ -444,7 +384,7 @@ Billing Dept | info@lancoproperty.com
 
       <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
         <button onclick="copyEmailBody()" class="px-3.5 py-2 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition flex items-center gap-1.5">
-          <i class="fa-solid fa-copy"></i> Copy Body Text
+          <i class="fa-solid fa-copy"></i> Copy Text
         </button>
         <button onclick="launchMailClient()" class="px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg shadow transition flex items-center gap-1.5">
           <i class="fa-solid fa-arrow-up-right-from-square"></i> Open Mail App
@@ -455,34 +395,21 @@ Billing Dept | info@lancoproperty.com
 
   <!-- JavaScript App Engine -->
   <script>
-    // State management
-    let logoDataUrl = '';
-
-    // Initial default items
-    const defaultRentItems = [
-      { description: "Property Services / Maintenance", qty: 1, rate: 1250.00 }
+    const sampleItems = [
+      { prod: "Services", desc: "930 N Shippen St: trash removal, sanding and paint touchup", qty: 1, rate: 140.00 },
+      { prod: "Material", desc: "paint, trash, sanding block", qty: 1, rate: 40.00 }
     ];
 
     window.addEventListener('DOMContentLoaded', () => {
-      // Set default dates
       const today = new Date();
-      const dueDate = new Date();
-      dueDate.setDate(today.getDate() + 30);
-
       document.getElementById('edit-inv-date').value = formatDateInput(today);
-      document.getElementById('edit-due-date').value = formatDateInput(dueDate);
+      autoCalculateDueDate();
 
-      // Load company profile from LocalStorage if available
-      loadCompanyProfile();
-
-      // Load initial items
-      defaultRentItems.forEach(item => addLineItem(item.description, item.qty, item.rate));
-
-      // Sync form fields to preview
+      loadInvoiceNumber();
+      sampleItems.forEach(item => addLineItem(item.prod, item.desc, item.qty, item.rate));
       syncFields();
     });
 
-    // Date formatting helper
     function formatDateInput(d) {
       return d.toISOString().split('T')[0];
     }
@@ -490,11 +417,20 @@ Billing Dept | info@lancoproperty.com
     function formatDateDisplay(dateStr) {
       if (!dateStr) return '';
       const [year, month, day] = dateStr.split('-');
-      const d = new Date(year, month - 1, day);
-      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      return `${month}/${day}/${year}`;
     }
 
-    // Currency Formatter
+    function autoCalculateDueDate() {
+      const dateVal = document.getElementById('edit-inv-date').value;
+      if (dateVal) {
+        const [year, month, day] = dateVal.split('-');
+        const invDate = new Date(year, month - 1, day);
+        invDate.setDate(invDate.getDate() + 30);
+        document.getElementById('edit-due-date').value = formatDateInput(invDate);
+      }
+      syncFields();
+    }
+
     function formatMoney(num) {
       return new Intl.NumberFormat('en-US', {
         style: 'currency',
@@ -503,64 +439,81 @@ Billing Dept | info@lancoproperty.com
       }).format(num || 0);
     }
 
-    // Sync Editor Form fields to Live Document Preview
+    function loadInvoiceNumber() {
+      const savedNum = localStorage.getItem('lcpm_last_inv_num');
+      if (savedNum) {
+        document.getElementById('edit-inv-number').value = savedNum;
+      } else {
+        document.getElementById('edit-inv-number').value = "1175";
+      }
+    }
+
+    function saveAndSyncInvNo() {
+      const num = document.getElementById('edit-inv-number').value;
+      if (num) {
+        localStorage.setItem('lcpm_last_inv_num', num);
+      }
+      syncFields();
+    }
+
+    function nextInvoice() {
+      const current = parseInt(document.getElementById('edit-inv-number').value) || 1175;
+      const nextNum = current + 1;
+      document.getElementById('edit-inv-number').value = nextNum;
+      saveAndSyncInvNo();
+
+      const tbody = document.getElementById('line-items-body');
+      tbody.innerHTML = '';
+      addLineItem('', '', 1, 0);
+
+      showToast(`Advanced to Invoice #${nextNum}`);
+    }
+
+    function handleClientDropdownChange() {
+      const val = document.getElementById('client-dropdown').value;
+      
+      if (val === 'lcpm') {
+        document.getElementById('edit-client-name').value = "Lancaster County Property Management";
+        document.getElementById('edit-client-email').value = "info@lancoproperty.com";
+      } else if (val === 'lpmc') {
+        document.getElementById('edit-client-name').value = "Lancaster Property Management Company";
+        document.getElementById('edit-client-email').value = "info@lancoproperty.com";
+      } else {
+        document.getElementById('edit-client-name').value = "";
+        document.getElementById('edit-client-email').value = "";
+      }
+      
+      syncFields();
+    }
+
     function syncFields() {
-      // Business info
-      const bizName = document.getElementById('edit-biz-name').value;
-      const bizAddr = document.getElementById('edit-biz-address').value;
-      document.getElementById('view-biz-name').textContent = bizName || 'Your Business Name';
-      document.getElementById('view-biz-address').textContent = bizAddr || 'Your Address & Contact Information';
+      const clientName = document.getElementById('edit-client-name').value || 'Lancaster County Property Management';
 
-      // Client info
-      const clientName = document.getElementById('edit-client-name').value;
-      const clientEmail = document.getElementById('edit-client-email').value;
-      const clientAddr = document.getElementById('edit-client-address').value;
+      document.getElementById('view-bill-to').textContent = clientName;
+      document.getElementById('view-ship-to').textContent = clientName;
 
-      document.getElementById('view-client-name').textContent = clientName || 'Lancaster Property Management Company';
-      document.getElementById('view-client-email-display').textContent = clientEmail || 'info@lancoproperty.com';
-      document.getElementById('view-client-address').textContent = clientAddr || `${clientName}\n${clientEmail}`;
-
-      // Invoice metadata
-      document.getElementById('view-inv-number').textContent = document.getElementById('edit-inv-number').value || 'INV-001';
+      document.getElementById('view-inv-number').textContent = document.getElementById('edit-inv-number').value || '1175';
+      document.getElementById('view-terms').textContent = document.getElementById('edit-terms-text').value || 'Net 30';
       document.getElementById('view-inv-date').textContent = formatDateDisplay(document.getElementById('edit-inv-date').value);
       document.getElementById('view-due-date').textContent = formatDateDisplay(document.getElementById('edit-due-date').value);
 
-      // Status Badge Styling
-      const status = document.getElementById('edit-inv-status').value;
-      const badge = document.getElementById('view-status-badge');
-      badge.textContent = status;
-      
-      if (status === 'PAID') {
-        badge.className = "px-2.5 py-0.5 rounded-full text-xs font-bold uppercase border bg-emerald-100 text-emerald-800 border-emerald-300";
-      } else if (status === 'OVERDUE') {
-        badge.className = "px-2.5 py-0.5 rounded-full text-xs font-bold uppercase border bg-rose-100 text-rose-800 border-rose-300";
-      } else {
-        badge.className = "px-2.5 py-0.5 rounded-full text-xs font-bold uppercase border bg-amber-100 text-amber-800 border-amber-300";
-      }
-
-      // Notes & Terms
-      const notes = document.getElementById('edit-notes').value;
-      const terms = document.getElementById('edit-terms').value;
-      
-      document.getElementById('view-notes').textContent = notes;
-      document.getElementById('view-terms').textContent = terms;
-      
-      document.getElementById('view-notes-box').style.display = notes ? 'block' : 'none';
-      document.getElementById('view-terms-box').style.display = terms ? 'block' : 'none';
-
-      // Recalculate totals
       calculateTotals();
     }
 
-    // Add row to items table
-    function addLineItem(desc = '', qty = 1, rate = 0.00) {
+    function addLineItem(prod = '', desc = '', qty = 1, rate = 0.00) {
       const tbody = document.getElementById('line-items-body');
       const row = document.createElement('tr');
       row.className = 'line-item-row group hover:bg-slate-50 transition';
 
+      const rowIdx = tbody.children.length + 1;
+
       row.innerHTML = `
-        <td class="py-2 px-3">
-          <input type="text" placeholder="Item description..." class="item-desc w-full text-slate-800 font-medium p-1 border border-transparent hover:border-slate-200 focus:border-indigo-500 rounded focus:outline-none" value="${desc}" oninput="calculateTotals()">
+        <td class="py-2 px-1 text-slate-400 font-bold item-index">${rowIdx}.</td>
+        <td class="py-2 px-2">
+          <input type="text" placeholder="Services / Material" class="item-prod w-full text-slate-800 font-medium p-1 border border-transparent hover:border-slate-200 focus:border-indigo-500 rounded focus:outline-none" value="${prod}" oninput="calculateTotals()">
+        </td>
+        <td class="py-2 px-2">
+          <input type="text" placeholder="Description of work..." class="item-desc w-full text-slate-800 p-1 border border-transparent hover:border-slate-200 focus:border-indigo-500 rounded focus:outline-none" value="${desc}" oninput="calculateTotals()">
         </td>
         <td class="py-2 px-2">
           <input type="number" min="0" step="1" class="item-qty w-full text-center text-slate-800 font-medium p-1 border border-transparent hover:border-slate-200 focus:border-indigo-500 rounded focus:outline-none" value="${qty}" oninput="calculateTotals()">
@@ -568,7 +521,7 @@ Billing Dept | info@lancoproperty.com
         <td class="py-2 px-2">
           <input type="number" min="0" step="0.01" class="item-rate w-full text-right text-slate-800 font-medium p-1 border border-transparent hover:border-slate-200 focus:border-indigo-500 rounded focus:outline-none" value="${rate}" oninput="calculateTotals()">
         </td>
-        <td class="py-2 px-3 text-right font-semibold text-slate-800 item-amount">
+        <td class="py-2 px-2 text-right font-semibold text-slate-900 item-amount">
           ${formatMoney(qty * rate)}
         </td>
         <td class="py-2 px-1 text-center no-print">
@@ -582,18 +535,19 @@ Billing Dept | info@lancoproperty.com
       calculateTotals();
     }
 
-    // Remove row
     function removeLineItem(btn) {
       const tbody = document.getElementById('line-items-body');
       if (tbody.children.length > 1) {
         btn.closest('tr').remove();
+        Array.from(tbody.children).forEach((tr, i) => {
+          tr.querySelector('.item-index').textContent = `${i + 1}.`;
+        });
         calculateTotals();
       } else {
         showToast('Invoice must have at least one row.');
       }
     }
 
-    // Recalculate balance
     function calculateTotals() {
       let subtotal = 0;
       const rows = document.querySelectorAll('.line-item-row');
@@ -607,129 +561,35 @@ Billing Dept | info@lancoproperty.com
         subtotal += amount;
       });
 
-      const taxRate = parseFloat(document.getElementById('edit-tax-rate').value) || 0;
-      const taxVal = subtotal * (taxRate / 100);
-
-      const discountVal = parseFloat(document.getElementById('edit-discount-val').value) || 0;
-      const grandTotal = Math.max(0, subtotal + taxVal - discountVal);
-
-      // Update Preview
-      document.getElementById('view-subtotal').textContent = formatMoney(subtotal);
-      document.getElementById('view-tax-rate').textContent = taxRate;
-      document.getElementById('view-tax-val').textContent = formatMoney(taxVal);
-      document.getElementById('view-discount-val').textContent = `-${formatMoney(discountVal)}`;
-      document.getElementById('view-grand-total').textContent = formatMoney(grandTotal);
+      document.getElementById('view-grand-total').textContent = formatMoney(subtotal);
     }
 
-    // Logo Upload Handling (Base64)
-    function handleLogoUpload(event) {
-      const file = event.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          logoDataUrl = e.target.result;
-          document.getElementById('preview-logo').src = logoDataUrl;
-          document.getElementById('preview-logo-container').classList.remove('hidden');
-          document.getElementById('remove-logo-btn').classList.remove('hidden');
-        };
-        reader.readAsDataURL(file);
-      }
-    }
-
-    function removeLogo() {
-      logoDataUrl = '';
-      document.getElementById('preview-logo').src = '';
-      document.getElementById('preview-logo-container').classList.add('hidden');
-      document.getElementById('remove-logo-btn').classList.add('hidden');
-      document.getElementById('logo-input').value = '';
-    }
-
-    // LocalStorage Company Profile Persistence
-    function saveCompanyProfile() {
-      const profile = {
-        name: document.getElementById('edit-biz-name').value,
-        address: document.getElementById('edit-biz-address').value,
-        notes: document.getElementById('edit-notes').value,
-        terms: document.getElementById('edit-terms').value,
-        logo: logoDataUrl
-      };
-      localStorage.setItem('invoice_studio_profile', JSON.stringify(profile));
-      showToast('Business details saved to browser storage!');
-    }
-
-    function loadCompanyProfile() {
-      const saved = localStorage.getItem('invoice_studio_profile');
-      if (saved) {
-        try {
-          const profile = JSON.parse(saved);
-          if (profile.name) document.getElementById('edit-biz-name').value = profile.name;
-          if (profile.address) document.getElementById('edit-biz-address').value = profile.address;
-          if (profile.notes) document.getElementById('edit-notes').value = profile.notes;
-          if (profile.terms) document.getElementById('edit-terms').value = profile.terms;
-          if (profile.logo) {
-            logoDataUrl = profile.logo;
-            document.getElementById('preview-logo').src = logoDataUrl;
-            document.getElementById('preview-logo-container').classList.remove('hidden');
-            document.getElementById('remove-logo-btn').classList.remove('hidden');
-          }
-        } catch(e) {
-          console.error(e);
-        }
-      } else {
-        document.getElementById('edit-biz-name').value = "My Property Services";
-        document.getElementById('edit-biz-address').value = "100 Main Street, Suite 400\nAustin, TX 78701\nbilling@mycompany.com | (512) 555-0199";
-        document.getElementById('edit-notes').value = "Please send ACH or check payment referencing INV# in payment memo.";
-        document.getElementById('edit-terms').value = "Payment due within 30 days of invoice date.";
-      }
-    }
-
-    // Reset Form to Default Lancaster Settings
-    function clearForm() {
-      document.getElementById('edit-client-name').value = "Lancaster Property Management Company";
-      document.getElementById('edit-client-email').value = "info@lancoproperty.com";
-      document.getElementById('edit-client-address').value = "Lancaster Property Management Company\nBilling Dept | info@lancoproperty.com";
-      document.getElementById('edit-tax-rate').value = 0;
-      document.getElementById('edit-discount-val').value = 0;
-
-      const tbody = document.getElementById('line-items-body');
-      tbody.innerHTML = '';
-      defaultRentItems.forEach(item => addLineItem(item.description, item.qty, item.rate));
-
-      const randomNum = Math.floor(1000 + Math.random() * 9000);
-      document.getElementById('edit-inv-number').value = `INV-2026-${randomNum}`;
-
-      syncFields();
-      showToast('Reset to Lancaster Property Management default!');
-    }
-
-    // Email Modal & Mailto Engine
     function openEmailModal() {
-      const invNum = document.getElementById('edit-inv-number').value || 'INV-001';
-      const bizName = document.getElementById('edit-biz-name').value || 'Our Company';
-      const clientName = document.getElementById('edit-client-name').value || 'Lancaster Property Management Company';
+      const invNum = document.getElementById('edit-inv-number').value || '1175';
+      const clientName = document.getElementById('edit-client-name').value || 'Lancaster County Property Management';
       const clientEmail = document.getElementById('edit-client-email').value || 'info@lancoproperty.com';
       const grandTotal = document.getElementById('view-grand-total').textContent;
       const dueDate = formatDateDisplay(document.getElementById('edit-due-date').value);
 
-      // Construct plain text breakdown of line items
       let itemsListText = '';
       const rows = document.querySelectorAll('.line-item-row');
-      rows.forEach(row => {
-        const desc = row.querySelector('.item-desc').value || 'Service Item';
+      rows.forEach((row, i) => {
+        const prod = row.querySelector('.item-prod').value || 'Service';
+        const desc = row.querySelector('.item-desc').value || '';
         const qty = row.querySelector('.item-qty').value || '1';
         const rate = row.querySelector('.item-rate').value || '0';
         const amt = row.querySelector('.item-amount').textContent;
-        itemsListText += ` • ${desc} (Qty: ${qty} @ $${rate}) = ${amt}\n`;
+        itemsListText += ` ${i + 1}. ${prod} - ${desc} (${qty} @ $${rate}) = ${amt}\n`;
       });
 
-      const emailSubject = `Invoice ${invNum} from ${bizName}`;
-      const emailBody = `Hello ${clientName},\n\nPlease find the summary for invoice ${invNum} below:\n\n` +
+      const emailSubject = `Invoice #${invNum} - Lancaster County Property Management`;
+      const emailBody = `Hello ${clientName},\n\nPlease find the summary for invoice #${invNum} below:\n\n` +
                         `Invoice #: ${invNum}\n` +
-                        `Due Date: ${dueDate}\n` +
-                        `Total Amount: ${grandTotal}\n\n` +
+                        `Date: ${formatDateDisplay(document.getElementById('edit-inv-date').value)}\n` +
+                        `Due Date: ${dueDate}\n\n` +
                         `LINE ITEMS:\n${itemsListText}\n` +
-                        `Payment Notes:\n${document.getElementById('edit-notes').value}\n\n` +
-                        `Thank you,\n${bizName}`;
+                        `Total Amount: ${grandTotal}\n\n` +
+                        `Thank you,\nLancaster County Property Management`;
 
       document.getElementById('modal-email-to').value = clientEmail;
       document.getElementById('modal-email-subject').value = emailSubject;
@@ -744,8 +604,6 @@ Billing Dept | info@lancoproperty.com
 
     function copyEmailBody() {
       const text = document.getElementById('modal-email-body').value;
-      
-      // ExecCommand fallback for iframe clipboard execution
       const tempArea = document.createElement('textarea');
       tempArea.value = text;
       document.body.appendChild(tempArea);
@@ -764,7 +622,6 @@ Billing Dept | info@lancoproperty.com
       window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
     }
 
-    // UI Toast notification helper
     function showToast(msg) {
       const toast = document.getElementById('toast-msg');
       document.getElementById('toast-text').textContent = msg;
@@ -778,3 +635,5 @@ Billing Dept | info@lancoproperty.com
   </script>
 </body>
 </html>
+
+```
