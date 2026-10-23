@@ -143,7 +143,7 @@
           <span>Download PDF</span>
         </button>
 
-        <button onclick="window.print()" class="px-4 py-1.5 text-xs sm:text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg shadow transition flex items-center gap-2">
+        <button onclick="printInvoice()" class="px-4 py-1.5 text-xs sm:text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg shadow transition flex items-center gap-2">
           <i class="fa-solid fa-print"></i>
           <span>Print</span>
         </button>
@@ -561,42 +561,43 @@
       }
     }
 
-    function getCalculatedTotalNumber() {
-      let subtotal = 0;
-      const rows = document.querySelectorAll('.line-item-row');
-      rows.forEach(row => {
-        const qty = parseFloat(row.querySelector('.item-qty').value) || 0;
-        const rate = parseFloat(row.querySelector('.item-rate').value) || 0;
-        subtotal += (qty * rate);
-      });
-      return subtotal;
-    }
-
     function calculateTotals() {
       let subtotal = 0;
       const rows = document.querySelectorAll('.line-item-row');
 
       rows.forEach(row => {
-        const qty = parseFloat(row.querySelector('.item-qty').value) || 0;
-        const rate = parseFloat(row.querySelector('.item-rate').value) || 0;
+        const qtyInput = row.querySelector('.item-qty');
+        const rateInput = row.querySelector('.item-rate');
+        
+        const qty = parseFloat(qtyInput ? qtyInput.value : 1) || 0;
+        const rate = parseFloat(rateInput ? rateInput.value : 0) || 0;
         const amount = qty * rate;
 
-        row.querySelector('.item-amount').textContent = formatMoney(amount);
+        const amountEl = row.querySelector('.item-amount');
+        if (amountEl) {
+          amountEl.textContent = formatMoney(amount);
+        }
         subtotal += amount;
       });
 
-      document.getElementById('view-grand-total').textContent = formatMoney(subtotal);
+      const grandTotalEl = document.getElementById('view-grand-total');
+      if (grandTotalEl) {
+        grandTotalEl.textContent = formatMoney(subtotal);
+      }
+
+      return subtotal;
     }
 
     function generatePDFFilename() {
       const jobName = (document.getElementById('edit-job-name').value || 'Invoice').trim();
-      const rawTotal = getCalculatedTotalNumber();
+      const rawTotal = calculateTotals();
       const totalWithoutCents = Math.floor(rawTotal);
       
       return `${jobName}_LCPM_$${totalWithoutCents}.pdf`;
     }
 
     function downloadPDF() {
+      calculateTotals(); // Force calculation before PDF render
       const element = document.getElementById('printable-area');
       const filename = generatePDFFilename();
 
@@ -611,7 +612,13 @@
       html2pdf().set(opt).from(element).save();
     }
 
+    function printInvoice() {
+      calculateTotals(); // Force calculation before print dialog
+      window.print();
+    }
+
     function openEmailModal() {
+      calculateTotals();
       const invNum = document.getElementById('edit-inv-number').value || '1175';
       const clientName = document.getElementById('edit-client-name').value || 'Lancaster County Property Management';
       const clientEmail = document.getElementById('edit-client-email').value || 'info@lancoproperty.com';
