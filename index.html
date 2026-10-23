@@ -16,11 +16,8 @@
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-  <!-- html2pdf.js -->
+  <!-- html2pdf.js for Client-Side PDF Generation -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
-  <!-- EmailJS SDK -->
-  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
   <script>
     tailwind.config = {
@@ -51,7 +48,7 @@
       background: #94a3b8;
     }
 
-    /* Print Specific Styles */
+    /* Print Specific Styles - Crucial for clean PDF output */
     @media print {
       @page {
         margin: 0.5in;
@@ -66,6 +63,7 @@
         print-color-adjust: exact !important;
       }
 
+      /* Hide builder UI, modals, and screen-only controls */
       .no-print, 
       #editor-panel,
       #email-modal,
@@ -73,6 +71,7 @@
         display: none !important;
       }
 
+      /* Make Preview occupy full print page */
       #preview-panel {
         width: 100% !important;
         max-width: 100% !important;
@@ -89,6 +88,7 @@
         padding: 0 !important;
       }
 
+      /* Ensure print inputs convert nicely to plain text visuals */
       input, textarea, select {
         border: none !important;
         background: transparent !important;
@@ -133,7 +133,7 @@
 
         <button onclick="openEmailModal()" class="px-3.5 py-1.5 text-xs sm:text-sm font-semibold text-indigo-100 bg-indigo-900/80 hover:bg-indigo-800 border border-indigo-700 rounded-lg shadow-sm transition flex items-center gap-2">
           <i class="fa-solid fa-paper-plane text-indigo-300"></i>
-          <span>Send Email w/ PDF</span>
+          <span>Send Email</span>
         </button>
 
         <button onclick="downloadPDF()" class="px-3.5 py-1.5 text-xs sm:text-sm font-semibold text-slate-200 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg shadow-sm transition flex items-center gap-2">
@@ -149,7 +149,7 @@
     </div>
   </header>
 
-  <!-- Main Container -->
+  <!-- Main Container: Side-by-side Builder & Live Preview -->
   <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
     
     <!-- LEFT PANEL: Form Controls -->
@@ -353,12 +353,12 @@
 
   </main>
 
-  <!-- Email Draft Overlay Modal -->
+  <!-- Email Overlay Modal -->
   <div id="email-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 no-print">
     <div class="bg-white rounded-xl shadow-2xl border border-slate-200 max-w-lg w-full p-6 space-y-4">
       <div class="flex justify-between items-center border-b border-slate-100 pb-3">
         <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
-          <i class="fa-solid fa-paper-plane text-indigo-600"></i> Send Invoice PDF via Email
+          <i class="fa-solid fa-envelope text-indigo-600"></i> Gmail Web Integration
         </h3>
         <button onclick="closeEmailModal()" class="text-slate-400 hover:text-slate-600 text-lg">&times;</button>
       </div>
@@ -380,17 +380,17 @@
         </div>
 
         <div class="bg-indigo-50 p-2.5 rounded border border-indigo-100 text-[11px] text-indigo-800 flex items-center gap-2">
-          <i class="fa-solid fa-file-pdf text-indigo-600 text-sm"></i>
-          <span>Invoice PDF will be rendered and attached automatically to this email.</span>
+          <i class="fa-solid fa-circle-info text-indigo-600 text-sm"></i>
+          <span>Clicking send will download the PDF automatically and open a pre-filled Gmail tab where you can attach the PDF.</span>
         </div>
       </div>
 
       <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
         <button onclick="downloadPDF()" class="px-3.5 py-2 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition flex items-center gap-1.5">
-          <i class="fa-solid fa-download"></i> Download PDF
+          <i class="fa-solid fa-download"></i> Just Download PDF
         </button>
-        <button id="send-email-btn" onclick="sendEmailWithPDF()" class="px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg shadow transition flex items-center gap-1.5">
-          <i class="fa-solid fa-paper-plane"></i> Send Email
+        <button id="send-email-btn" onclick="sendViaGmailWeb()" class="px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg shadow transition flex items-center gap-1.5">
+          <i class="fa-solid fa-arrow-up-right-from-square"></i> Open in Gmail & Download PDF
         </button>
       </div>
     </div>
@@ -398,10 +398,6 @@
 
   <!-- JavaScript App Engine -->
   <script>
-    (function(){
-      emailjs.init("w6s7nhBMilbn20les");
-    })();
-
     const sampleItems = [
       { prod: "Services", desc: "930 N Shippen St: trash removal, sanding and paint touchup", qty: 1, rate: 140.00 },
       { prod: "Material", desc: "paint, trash, sanding block", qty: 1, rate: 40.00 }
@@ -630,41 +626,20 @@
       document.getElementById('email-modal').classList.add('hidden');
     }
 
-    async function sendEmailWithPDF() {
-      const sendBtn = document.getElementById('send-email-btn');
-      sendBtn.disabled = true;
-      sendBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Generating PDF & Sending...`;
+    function sendViaGmailWeb() {
+      const to = encodeURIComponent(document.getElementById('modal-email-to').value);
+      const subject = encodeURIComponent(document.getElementById('modal-email-subject').value);
+      const body = encodeURIComponent(document.getElementById('modal-email-body').value);
 
-      try {
-        const element = document.getElementById('printable-area');
-        const invNum = document.getElementById('edit-inv-number').value || '1175';
-        
-        const pdfBase64 = await html2pdf().set({
-          margin: 0.4,
-          image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: { scale: 2 },
-          jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-        }).from(element).outputPdf('datauristring');
+      // Download PDF
+      downloadPDF();
 
-        const templateParams = {
-          to_email: document.getElementById('modal-email-to').value,
-          subject: document.getElementById('modal-email-subject').value,
-          message: document.getElementById('modal-email-body').value,
-          content_attachment: pdfBase64,
-          filename: `Invoice_${invNum}.pdf`
-        };
+      // Open Gmail tab
+      const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${to}&su=${subject}&body=${body}`;
+      window.open(gmailUrl, '_blank');
 
-        await emailjs.send("service_tqk8e7r", "template_yax3zoi", templateParams);
-
-        showToast('Invoice PDF email sent successfully!');
-        closeEmailModal();
-      } catch (err) {
-        console.error(err);
-        showToast('Email sending failed. Please check your EmailJS settings.');
-      } finally {
-        sendBtn.disabled = false;
-        sendBtn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> Send Email`;
-      }
+      showToast('PDF downloaded! Attach it in the opened Gmail tab.');
+      closeEmailModal();
     }
 
     function showToast(msg) {
