@@ -576,11 +576,23 @@
     }
 
     function calculateTotals() {
-      const total = getCalculatedTotalNumber();
-      document.getElementById('view-grand-total').textContent = formatMoney(total);
+      let subtotal = 0;
+      const rows = document.querySelectorAll('.line-item-row');
+
+      rows.forEach(row => {
+        const qty = parseFloat(row.querySelector('.item-qty').value) || 0;
+        const rate = parseFloat(row.querySelector('.item-rate').value) || 0;
+        const amount = qty * rate;
+
+        // Directly update each row's amount column in real time
+        row.querySelector('.item-amount').textContent = formatMoney(amount);
+        subtotal += amount;
+      });
+
+      // Directly update the Grand Total
+      document.getElementById('view-grand-total').textContent = formatMoney(subtotal);
     }
 
-    // Dynamic Filename Generator: "Job name_LCPM_$total without cents.pdf"
     function generatePDFFilename() {
       const jobName = (document.getElementById('edit-job-name').value || 'Invoice').trim();
       const rawTotal = getCalculatedTotalNumber();
@@ -634,10 +646,8 @@
       const subject = encodeURIComponent(document.getElementById('modal-email-subject').value);
       const body = encodeURIComponent(document.getElementById('modal-email-body').value);
 
-      // 1. Download PDF with exact "Job Name_LCPM_$180" naming format
       downloadPDF();
 
-      // 2. Open Gmail compose window
       const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${to}&su=${subject}&body=${body}`;
       window.open(gmailUrl, '_blank');
 
