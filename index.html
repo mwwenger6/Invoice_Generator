@@ -48,7 +48,7 @@
       background: #94a3b8;
     }
 
-    /* Print Specific Styles - Crucial for clean PDF output */
+    /* Print Specific Styles */
     @media print {
       @page {
         margin: 0.5in;
@@ -63,7 +63,6 @@
         print-color-adjust: exact !important;
       }
 
-      /* Hide builder UI, modals, and screen-only controls */
       .no-print, 
       #editor-panel,
       #email-modal,
@@ -71,7 +70,6 @@
         display: none !important;
       }
 
-      /* Make Preview occupy full print page */
       #preview-panel {
         width: 100% !important;
         max-width: 100% !important;
@@ -88,7 +86,6 @@
         padding: 0 !important;
       }
 
-      /* Ensure print inputs convert nicely to plain text visuals */
       input, textarea, select {
         border: none !important;
         background: transparent !important;
@@ -567,28 +564,34 @@
       }
     }
 
-    function calculateTotals() {
+    function getCalculatedTotalNumber() {
       let subtotal = 0;
       const rows = document.querySelectorAll('.line-item-row');
-
       rows.forEach(row => {
         const qty = parseFloat(row.querySelector('.item-qty').value) || 0;
         const rate = parseFloat(row.querySelector('.item-rate').value) || 0;
-        const amount = qty * rate;
-
-        row.querySelector('.item-amount').textContent = formatMoney(amount);
-        subtotal += amount;
+        subtotal += (qty * rate);
       });
+      return subtotal;
+    }
 
-      document.getElementById('view-grand-total').textContent = formatMoney(subtotal);
+    function calculateTotals() {
+      const total = getCalculatedTotalNumber();
+      document.getElementById('view-grand-total').textContent = formatMoney(total);
+    }
+
+    // Dynamic Filename Generator: "Job name_LCPM_$total without cents.pdf"
+    function generatePDFFilename() {
+      const jobName = (document.getElementById('edit-job-name').value || 'Invoice').trim();
+      const rawTotal = getCalculatedTotalNumber();
+      const totalWithoutCents = Math.floor(rawTotal);
+      
+      return `${jobName}_LCPM_$${totalWithoutCents}.pdf`;
     }
 
     function downloadPDF() {
       const element = document.getElementById('printable-area');
-      const invNum = document.getElementById('edit-inv-number').value || '1175';
-      const jobName = document.getElementById('edit-job-name').value || '';
-      
-      const filename = `Invoice_${invNum}${jobName ? '_' + jobName : ''}.pdf`;
+      const filename = generatePDFFilename();
 
       const opt = {
         margin:       0.4,
@@ -631,10 +634,10 @@
       const subject = encodeURIComponent(document.getElementById('modal-email-subject').value);
       const body = encodeURIComponent(document.getElementById('modal-email-body').value);
 
-      // Download PDF
+      // 1. Download PDF with exact "Job Name_LCPM_$180" naming format
       downloadPDF();
 
-      // Open Gmail tab
+      // 2. Open Gmail compose window
       const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${to}&su=${subject}&body=${body}`;
       window.open(gmailUrl, '_blank');
 
